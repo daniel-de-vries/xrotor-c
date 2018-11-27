@@ -1,11 +1,8 @@
-#include <utility>
-
 //
 // Created by Daniël de Vries on 26/11/2018.
 //
 
 #include "spline.h"
-#include <stdexcept>
 
 namespace spline {
 

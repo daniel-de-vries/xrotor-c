@@ -5,17 +5,21 @@
 #ifndef XROTOR_NOGRAPHICS_CPP_SPLINE_H
 #define XROTOR_NOGRAPHICS_CPP_SPLINE_H
 
+#include <vector>
+using std::vector;
+typedef vector<double> vec;
+
 namespace spline {
 
-    void spline(const double *x, double *xs, const double *s, int n);
-    void splind(const double *x, double *xs, const double *s, int n, double xs1, double xs2);
-    void splina(const double *x, double *xs, const double *s, int n);
-    void trisol(double *a, const double *b, double *c, double *d, int kk);
+    void spline(const vec &x, vec &xs, const vec &s);
+    void splind(const vec &x, vec &xs, const vec &s, double xs1, double xs2);
+    void splina(const vec &x, vec &xs, const vec &s);
+    void trisol(vec &a, const vec &b, vec &c, vec &d);
 
-    double seval(double ss, const double *x, const double *xs, const double *s, int n);
-    double deval(double ss, const double *x, const double *xs, const double *s, int n);
+    double seval(double ss, const vec &x, const vec &xs, const vec &s);
+    double deval(double ss, const vec &x, const vec &xs, const vec &s);
 
-    void segspl(const double *x, double *xs, const double *s, int n);
+    void segspl(const vec &x, vec &xs, const vec &s);
 }
 
 #endif // XROTOR_NOGRAPHICS_CPP_SPLINE_H

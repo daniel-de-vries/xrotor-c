@@ -5,7 +5,10 @@
 #ifndef XROTOR_NOGRAPHICS_CPP_COMMON_H
 #define XROTOR_NOGRAPHICS_CPP_COMMON_H
 
-#include <armadillo>
+#include <vector>
+using std::vector;
+typedef std::vector<double> vec;
+typedef std::vector<unsigned> uvec;
 
 namespace common {
     const int ix = 100;                 /**< max number of radial prop stations */
@@ -20,7 +23,20 @@ namespace common {
     const int iq = ix + 5;
     const int jx = (iq * 3) / 2 + 1;
 
-    const double pi = arma::datum::pi;
+    const double pi = 3.14159265358979323846264338327950288;
+
+    struct context {
+        double mcrit;
+        double rho, rmu, vso, vel, rad, gee, alt;
+
+        unsigned long ii;
+        unsigned naero;
+
+        uvec iaero;
+        vec xiaero, xi;
+        vector<vector<double>> aerodata;
+
+    };
 }
 
 

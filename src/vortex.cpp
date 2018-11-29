@@ -1,11 +1,12 @@
 //
 // Created by Daniël de Vries on 2018-11-28.
 //
-#include <cmath>        // std::sin, std::cos, std::tan, std::sqrt
+#include <cmath>        // std::sin, std::cos, std::tan, std::sqrt, M_PI
 #include <iostream>     // std::cout, std::endl
 #include "common.h"
 #include "vortex.h"
 using namespace std;
+using common::pi;
 
 namespace vortex {
 
@@ -29,7 +30,6 @@ namespace vortex {
                 const vec &xi, const vec &xv, const vec &gam, double adw,
                 Cube &vind_gam, Matrix &vind_adw) {
         auto blds = (double)nblds;
-        double pi = common::pi;
 
         double xi0 = xv[0];
         double xitip = xv[ii + 1];

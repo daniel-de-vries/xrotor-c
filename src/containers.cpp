@@ -7,8 +7,7 @@
 #include "containers.h"
 
 // Matrix DEFINITION START
-inline
-Matrix::Matrix(unsigned m, unsigned n)
+Matrix::Matrix(unsigned long m, unsigned long n)
         : m_ (m)
         , n_ (n)
 {
@@ -17,38 +16,46 @@ Matrix::Matrix(unsigned m, unsigned n)
     data_ = new double[m * n];
 }
 
-inline
+Matrix::Matrix(unsigned long m, unsigned long n, double val) : Matrix::Matrix(m, n) {
+    for (unsigned long i = 0; i < m*n; i++) {
+        data_[i] = val;
+    }
+}
+
 Matrix::Matrix(const Matrix &mat) {
     m_ = mat.m_;
     n_ = mat.n_;
-    unsigned N = m_ * n_;
+    unsigned long N = m_ * n_;
     data_ = new double[N];
     std::copy(mat.data_, mat.data_ + N, data_);
 }
 
-inline
 Matrix::~Matrix() {
     delete[] data_;
 }
 
-inline
-double& Matrix::operator()(unsigned i, unsigned j) {
+double& Matrix::operator()(unsigned long i, unsigned long j) {
     if (i >= m_ || j >= n_)
         throw std::out_of_range("Indices out of bounds.");
     return data_[i*n_ + j];
 }
 
-inline
-double Matrix::operator()(unsigned i, unsigned j) const {
+double Matrix::operator()(unsigned long i, unsigned long j) const {
     if (i >= m_ || j >= n_)
         throw std::out_of_range("Indices out of bounds.");
     return data_[i*n_ + j];
+}
+
+Matrix& Matrix::zeros() {
+    for (unsigned long i = 0; i < m_*n_; i++) {
+        data_[i] = 0.;
+    }
+    return *this;
 }
 // Matrix DEFINITION END
 
 // Cube DEFINITION START
-inline
-Cube::Cube(unsigned m, unsigned n, unsigned o)
+Cube::Cube(unsigned long m, unsigned long n, unsigned long o)
         : m_ (m)
         , n_ (n)
         , o_ (o)
@@ -58,32 +65,41 @@ Cube::Cube(unsigned m, unsigned n, unsigned o)
     data_ = new double[m * n * o];
 }
 
-inline
+Cube::Cube(unsigned long m, unsigned long n, unsigned long o, double val) : Cube::Cube(m, n, o) {
+    for (unsigned long i = 0; i < m*n*o; i++) {
+        data_[i] = val;
+    }
+}
+
 Cube::Cube(const Cube &cube) {
     m_ = cube.m_;
     n_ = cube.n_;
     o_ = cube.o_;
-    unsigned N = m_ * n_ * o_;
+    unsigned long N = m_ * n_ * o_;
     data_ = new double[N];
     std::copy(cube.data_, cube.data_ + N, data_);
 }
 
-inline
 Cube::~Cube() {
     delete[] data_;
 }
 
-inline
-double& Cube::operator()(unsigned i, unsigned j, unsigned k) {
+double& Cube::operator()(unsigned long i, unsigned long j, unsigned long k) {
     if (i >= m_ || j >= n_ || k >= o_)
         throw std::out_of_range("Indices out of bounds.");
     return data_[i*n_*o_ + j*o_ + k];
 }
 
-inline
-double Cube::operator()(unsigned i, unsigned j, unsigned k) const {
+double Cube::operator()(unsigned long i, unsigned long j, unsigned long k) const {
     if (i >= m_ || j >= n_ || k >= o_)
         throw std::out_of_range("Indices out of bounds.");
     return data_[i*n_*o_ + j*o_ + k];
+}
+
+Cube& Cube::zeros() {
+    for (unsigned long i = 0; i < m_*n_*o_; i++) {
+        data_[i] = 0.;
+    }
+    return *this;
 }
 // Cube DEFINITION END

@@ -5,33 +5,37 @@
 #ifndef XROTOR_NOGRAPHICS_C_ARRAYS_H
 #define XROTOR_NOGRAPHICS_C_ARRAYS_H
 
-#include <vector>
-
 class Matrix {
 public:
-    Matrix(unsigned m, unsigned n);
+    Matrix(unsigned long m, unsigned long n);
+    Matrix(unsigned long m, unsigned long n, double val);
     Matrix(const Matrix& mat);
     ~Matrix();
 
-    double& operator() (unsigned i, unsigned j);
-    double operator() (unsigned i, unsigned j) const;
+    double& operator() (unsigned long i, unsigned long j);
+    double operator() (unsigned long i, unsigned long j) const;
+
+    Matrix& zeros();
 
 private:
-    unsigned m_, n_;
+    unsigned long m_, n_;
     double* data_;
 };
 
 class Cube {
 public:
-    Cube(unsigned m, unsigned n, unsigned o);
+    Cube(unsigned long m, unsigned long n, unsigned long o);
+    Cube(unsigned long m, unsigned long n, unsigned long o, double val);
     Cube(const Cube& cube);
     ~Cube();
 
-    double& operator() (unsigned i, unsigned j, unsigned k);
-    double operator() (unsigned i, unsigned j, unsigned k) const;
+    double& operator() (unsigned long i, unsigned long j, unsigned long k);
+    double operator() (unsigned long i, unsigned long j, unsigned long k) const;
+
+    Cube& zeros();
 
 private:
-    unsigned m_, n_, o_;
+    unsigned long m_, n_, o_;
     double* data_;
 };
 

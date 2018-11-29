@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories("include")
 
 add_executable(xrotor_nographics_c main.cpp
-        src/common.cpp
         src/containers.cpp
         src/spline.cpp
         src/userio.cpp

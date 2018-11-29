@@ -204,13 +204,17 @@ namespace userio {
      */
     template <typename T, typename F>
     void _get_helper(string &input, vector<T> &a, unsigned long &n, bool &error, F fun) {
-        a.clear();
+        if (n == 0) a.resize(0);
         unsigned i = 0;
-        while (input.length() > 0 && (n != 0 && i < n)) {
+        while (input.length() > 0 && (n == 0 || i < n)) {
             unsigned long k = min(input.find_first_of(" ,"), input.length());
             try {
                 T val = fun(input.substr(0, k));
-                a.push_back(val);
+                if (n != 0) {
+                    a[i] = val;
+                } else {
+                    a.push_back(val);
+                }
             } catch (const invalid_argument& e) {
                 error = true;
                 return;
@@ -218,7 +222,7 @@ namespace userio {
             input.erase(0, k + 1);
             i++;
         }
-        n = a.size();
+        n = i;
         error = false;
     }
 

@@ -255,6 +255,24 @@ namespace xaero {
      * Calculate C_l(alpha), C_d(alpha), and C_m(alpha).
      *
      * @see[xaero::putaero(), xaero::getclcdcm()] for description of input parameters.
+     * 
+     * #CL(alpha) function
+     * Note that in addition to setting CLIFT and its derivatives
+     * CLMAX and CLMIN (+ and - stall CL's) are set in this routine
+     * In the compressible range the stall CL is reduced by a factor
+     * proportional to Mcrit-Mach.  Stall limiting for compressible
+     * cases begins when the compressible drag added CDC > CDMstall
+     *
+     * #CD(alpha) function - presently CD is assumed to be a sum
+     * of profile drag + stall drag + compressibility drag
+     * In the linear lift range drag is CD0 + quadratic function of CL-CLDMIN
+     * In + or - stall an additional drag is added that is proportional
+     * to the extent of lift reduction from the linear lift value.
+     * Compressible drag is based on adding drag proportional to
+     * (Mach-Mcrit_eff)^MEXP
+     *
+     * #CM(alpha) function - presently CM is assumed constant,
+     * varying only with Mach by Prandtl-Glauert scaling
      */
     void clcdcm(common::context &context,
                 const double &alf, const double &w, const double &rey,

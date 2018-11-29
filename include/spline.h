@@ -6,8 +6,7 @@
 #define XROTOR_NOGRAPHICS_CPP_SPLINE_H
 
 #include <vector>
-using std::vector;
-typedef vector<double> vec;
+typedef std::vector<double> vec;
 
 namespace spline {
 

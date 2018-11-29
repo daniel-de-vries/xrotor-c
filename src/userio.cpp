@@ -1,10 +1,6 @@
-#include <utility>
-
 //
 // Created by daniel.devries on 11/27/2018.
 //
-#include <algorithm>    // std::copy
-#include <string>       // std::getline, std::string, std::stoi, std::stod
 #include <iostream>     // std::cout, std::cin
 #include <stdexcept>    // std::invalid_argument
 #include "userio.h"
@@ -17,9 +13,9 @@ namespace userio {
      * Presents the user with a prompt.
      *
      * @param prompt        prompt to present to the user
-     * @param identifier    identified with which the actual prompt displayed will end
+     * @param identifier    string identifying what type of input is requested of the user
      */
-    void _ask_helper(const char* prompt, const char* identifier) {
+    void _ask_helper(const string &prompt, const string &identifier) {
         cout << prompt << "    " << identifier << "> ";
     }
 
@@ -28,95 +24,95 @@ namespace userio {
      *
      * @tparam T            known cases: int, double, string
      * @param prompt        prompt to present to the user
-     * @param input         pointer to the object in which to store the result
-     * @param identifier    identifier of the prompt, @see[_ask_helper(const char*, const char*)]
+     * @param identifier    identifier of the prompt, @see[_ask_helper(const string &, const string &)]
+     * @param input         value returned by the user
      */
     template <typename T>
-    void _ask_helper(const char* prompt, T* input, const char* identifier) {
+    void _ask_helper(const string &prompt, const string &identifier, T &input) {
         _ask_helper(prompt, identifier);
-        cin >> *input;
+        cin >> input;
     }
 
     /**
      * Present a prompt to the user and ask for input with a default value.
      *
-     * @tparam T            known cses: int, double, string
+     * @tparam T            known cases: int, double, string
      * @param prompt        prompt to present to the user
-     * @param input         pointer to the object in which to store the result
+     * @param identifier    identifier of the prompt, @see[_ask_helper(const string &, const string &)]
+     * @param input         value returned by the user
      * @param default_value default value in case the user does not enter anything
-     * @param identifier    identifier of the prompt, @see[_ask_helper(const char*, const char*)]
      */
     template <typename T>
-    void _ask_helper(const char* prompt, T* input, T default_value, const char* identifier) {
-        if (*input != default_value) {
-            cout << "Current value <ret takes default>: " << *input << endl;
+    void _ask_helper(const string &prompt, const string &identifier, T &input, const T &default_value) {
+        if (input != default_value) {
+            cout << "Current value <ret takes default>: " << input << endl;
         }
-        _ask_helper(prompt, input, identifier);
+        _ask_helper(prompt, identifier, input);
     }
 
     /**
      * Ask the user for an integer.
      *
      * @param prompt    prompt to present to the user
-     * @param iinput    pointer to the integer in which to store the result
+     * @param iinput    integer returned by the user
      *
      * @note If an empty input is given, iinput will be unchanged.
      */
-    void aski(const char* prompt, int* iinput) {
-        _ask_helper(prompt, iinput, 999, "i");
+    void aski(const string &prompt, int &iinput) {
+        _ask_helper(prompt, "i", iinput, 999);
     }
 
     /**
      * Ask the user for a double.
      *
      * @param prompt    prompt to present to the user
-     * @param rinput    pointer to the double in which to store the result
+     * @param rinput    double returned by the user
      *
      * @note If an empty input is given, rrinput will be unchanged.
      */
-    void askr(const char* prompt, double* rinput) {
-        _ask_helper(prompt, rinput, 999., "r");
+    void askr(const string &prompt, double &rinput) {
+        _ask_helper(prompt, "r", rinput, 999.);
     }
 
     /**
      * Ask the user for a bool.
      *
      * @param prompt    prompt to present to the user.
-     * @param linput    pointer to the bool in which to store the result
+     * @param linput    bool returned by the user
      *
      * @note Prompt will be repeated until a valid input is given.
      */
-    void askl(const char* prompt, bool* linput) {
+    void askl(const string &prompt, bool &linput) {
         char response = 0;
         while (response != 'Y' and response != 'N') {
             string str;
-            _ask_helper(prompt, &str, "y/n");
+            _ask_helper(prompt, "y/n",  str);
             response = (char)toupper(str[0]);
         }
-        *linput = (response == 'Y');
+        linput = (response == 'Y');
     }
 
     /**
      * Ask the user for a variable length string of characters.
      *
      * @param prompt    prompt to present to the user.
-     * @param input     pointer to the string in which to store the result
+     * @param input     string returned by the user
      */
-    void asks(const char* prompt, string* input) {
+    void asks(const string &prompt, string &input) {
         _ask_helper(prompt, "s");
-        getline(cin, *input);
+        getline(cin, input);
     }
 
     /**
      * Ask the user for a command (maximum of 4 characters) and possible arguments.
      *
      * @param prompt    prompt to present to the user
-     * @param command   char array with at least 4 positions
-     * @param cargs     pointer to a string in which to store excess input
+     * @param command   command with a maximum of 4 characters
+     * @param cargs     string in which to store excess input
      *
      * @note command will be converted to upper-case.
      */
-    void askc(const char* prompt, char* command, string* cargs) {
+    void askc(const string &prompt, string &command, string &cargs) {
         _ask_helper(prompt, "c");
 
         string line;
@@ -126,25 +122,23 @@ namespace userio {
         line.erase(0, line.find_first_not_of(" \n"));
 
         unsigned long k = min(line.find_first_of(" +-.,0123456789"), line.length());
-        for (int i = 0; i < k; i++) {
-            command[i] = (char)toupper(line[i]);
-        }
+        command = line.substr(min(k, 4ul));
+        lc2uc(command);
 
         if (k < 1) k = 5;
-        line = line.substr(k);
-        line.erase(0, line.find_first_not_of(' '));
-        line.erase(line.find_last_not_of(' ')+1, line.length());
-        *cargs = line;
+        cargs = line.substr(k);
+        cargs.erase(0, cargs.find_first_not_of(' '));
+        cargs.erase(cargs.find_last_not_of(' ')+1, cargs.length());
     }
 
     /**
      * Convert a string to upper-case.
      *
-     * @param input     pointer to the string to convert.
+     * @param input     string to convert
      */
-    void lc2uc(string* input) {
-        for (char &i : *input) {
-            i = (char)toupper(i);
+    void lc2uc(string &input) {
+        for (auto &c : input) {
+            c = (unsigned char)toupper(c);
         }
     }
 
@@ -152,22 +146,23 @@ namespace userio {
      * Read a number of objects of a given type.
      *
      * @tparam T        type of the objects to read
-     * @param n         number of objects to read/which are read
-     * @param var       pointer to an array in which to store the objects
+     * @param n         number of objects to read
+     * @param var       array in which to store the objects
      * @param error     whether something went wrong
-     * @param fptr      function pointer of a function which converts a string into an object of type T
+     * @param fptr      either userio::getint() or userio::getflt()
      */
     template <typename T>
-    void _read_helper(int n, T* var, bool* error, void (*fptr)(string, T*, int*, bool*)) {
+    void _read_helper(unsigned n, vector<T> &var, bool &error,
+                      void (*fptr)(string&, vector<T>&, unsigned long&, bool&)) {
         string line;
         getline(cin, line);
 
-        T tmp[n];
-        copy(var, var + n, tmp);
+        vector<T> tmp(var);
+        unsigned long n_tmp = n;
+        fptr(line, tmp, n_tmp, error);
 
-        int n_tmp = n;
-        fptr(line, tmp, &n_tmp, error);
-        copy(tmp, tmp + n, var);
+        if (error) return;
+        var = tmp;
     }
 
     /**
@@ -177,8 +172,8 @@ namespace userio {
      * @param ivar      array of integers
      * @param error     indicates if something went wrong while trying to read the input
      */
-    void readi(int n, int* ivar, bool* error) {
-        _read_helper(n, ivar, error, &getint);
+    void readi(unsigned n, ivec &ivar, bool &error) {
+        _read_helper<int>(n, ivar, error, &getint);
     }
 
     /**
@@ -188,8 +183,8 @@ namespace userio {
      * @param var       array of doubles
      * @param error     indicates if something went wrong while trying to read the input
      */
-    void readr(int n, double* var, bool* error) {
-        _read_helper(n, var, error, &getflt);
+    void readr(unsigned n, vec &var, bool &error) {
+        _read_helper<double>(n, var, error, &getflt);
     }
 
     /**
@@ -208,23 +203,23 @@ namespace userio {
      *       improperly.
      */
     template <typename T, typename F>
-    void _get_helper(string input, T* a, int* n, bool* error, F fun) {
-        int i = 0;
-        while (input.length() > 0 && (*n != 0 && i < *n)) {
+    void _get_helper(string &input, vector<T> &a, unsigned long &n, bool &error, F fun) {
+        a.clear();
+        unsigned i = 0;
+        while (input.length() > 0 && (n != 0 && i < n)) {
             unsigned long k = min(input.find_first_of(" ,"), input.length());
-            T val;
             try {
-                val = fun(input.substr(0, k));
+                T val = fun(input.substr(0, k));
+                a.push_back(val);
             } catch (const invalid_argument& e) {
-                *error = true;
+                error = true;
                 return;
             }
-            *(a++) = val;
             input.erase(0, k + 1);
             i++;
         }
-        *n = i + 1;
-        *error = false;
+        n = a.size();
+        error = false;
     }
 
     /**
@@ -242,8 +237,8 @@ namespace userio {
      * @param n         number of integers
      * @param error     indicates whether something went wrong
      */
-    void getint(string input, int* a, int* n, bool* error) {
-        _get_helper(std::move(input), a, n, error, [](string s) -> int { return stoi(s); });
+    void getint(string &input, ivec &a, unsigned long &n, bool &error) {
+        _get_helper(input, a, n, error, [](string s) -> int { return stoi(s); });
     }
 
     /**
@@ -261,7 +256,7 @@ namespace userio {
      * @param n         number of doubles
      * @param error     indicates whether something went wrong
      */
-    void getflt(string input, double* a, int* n, bool* error) {
-        _get_helper(std::move(input), a, n, error, [](string s) -> double { return stod(s); });
+    void getflt(string &input, vec &a, unsigned long &n, bool &error) {
+        _get_helper(input, a, n, error, [](string s) -> double { return stod(s); });
     }
 }

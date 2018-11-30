@@ -20,11 +20,7 @@ namespace xutils {
      * @param z     coefficient matrix (destroyed by the solution process)
      * @param r     right hand sides(s) (replaced by the solution vector(s))
      */
-    void gauss(Matrix &z, Matrix &r) {
-        const int* _ = r.size();
-        const int nn = _[0];
-        const int nrhs = _[1];
-
+    void gauss(int nsiz, int nn, int nrhs, double z[nsiz][nsiz], double r[nsiz][nrhs]) {
         int np, np1, nx, n, l, k;
         double pivot, temp, ztmp;
         for (np = 0; np < nn - 1; np++) {
@@ -33,45 +29,45 @@ namespace xutils {
             // find max pivot index nx
             nx = np;
             for (n = np1; n < nn; n++) {
-                if (fabs(z(n, np)) - fabs(z(nx, np)) > 0) {
+                if (fabs(z[n][np]) - fabs(z[nx][np]) > 0) {
                     nx = n;
                 }
             }
 
-            pivot = 1.0 / z(nx, np);
+            pivot = 1.0 / z[nx][np];
 
             // switch pivots
-            z(nx, np) = z(np, np);
+            z[nx][np] = z[np][np];
 
             // switch rows & normalize pivot row
             for (l = np1; l < nn; l++) {
-                temp = z(nx, l) * pivot;
-                z(nx, l) = z(np, l);
-                z(np, l) = temp;
+                temp = z[nx][l] * pivot;
+                z[nx][l] = z[np][l];
+                z[np][l] = temp;
             }
 
             for (l = 0; l < nrhs; l++) {
-                temp = r(nx, l) * pivot;
-                r(nx, l) = r(np, l);
-                r(np, l) = temp;
+                temp = r[nx][l] * pivot;
+                r[nx][l] = r[np][l];
+                r[np][l] = temp;
             }
 
             // forward eliminate everything
             for (k = np1; k < nn; k++) {
-                ztmp = z(k, np);
+                ztmp = z[k][np];
 
                 for (l = np1; l < nn; l++) {
-                    z(k, l) -= ztmp * z(np, l);
+                    z[k][l] -= ztmp * z[np][l];
                 }
                 for (l = 0; l < nrhs; l++) {
-                    r(k, l) -= ztmp * r(np, l);
+                    r[k][l] -= ztmp * r[np][l];
                 }
             }
         }
 
         // solve for last row
         for (l = 0; l < nrhs; l++) {
-            r(nn - 1, l) /= z(nn - 1, nn - 1);
+            r[nn-1][l] /= z[nn-1][nn-1];
         }
 
         // back substitute everything
@@ -79,7 +75,7 @@ namespace xutils {
             np1 = np + 1;
             for (l = 0; l < nrhs; l++) {
                 for (k = np1; k < nn; k++) {
-                    r(np, l) -= z(np, k) * r(k, l);
+                    r[np][l] -= z[np][k] * r[k][l];
                 }
             }
         }

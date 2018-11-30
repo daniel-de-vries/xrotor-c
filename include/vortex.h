@@ -5,10 +5,6 @@
 #ifndef XROTOR_NOGRAPHICS_CPP_VORTEX_H
 #define XROTOR_NOGRAPHICS_CPP_VORTEX_H
 
-#include "containers.h" // Matrix, Cube
-#include <vector>       // std::vector
-typedef std::vector<double> vec;
-
 namespace vortex {
     void vrtxc0(int imax, int ii, int nblds, bool lduct, double rake,
                 const double xi[imax], const double xv[imax], const double gam[imax], double adw,

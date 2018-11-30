@@ -6,7 +6,6 @@
 #define XROTOR_NOGRAPHICS_CPP_COMMON_H
 
 #include <string>
-#include <vector>
 using namespace std;
 
 namespace common {

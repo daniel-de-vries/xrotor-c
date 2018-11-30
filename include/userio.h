@@ -12,7 +12,6 @@ using std::vector;
 
 typedef vector<int> ivec;
 typedef vector<double> vec;
-typedef vector<bool> bvec;
 
 namespace userio {
 

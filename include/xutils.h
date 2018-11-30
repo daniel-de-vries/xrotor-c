@@ -5,10 +5,8 @@
 #ifndef XROTOR_NOGRAPHICS_C_XUTILS_H
 #define XROTOR_NOGRAPHICS_C_XUTILS_H
 
-#include "containers.h"
-
 namespace xutils {
-    void gauss(Matrix &z, Matrix &r);
+    void gauss(int nsiz, int nn, int nrhs, double z[nsiz][nsiz], double r[nsiz][nrhs]);
 }
 
 #endif //XROTOR_NOGRAPHICS_C_XUTILS_H

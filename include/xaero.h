@@ -5,9 +5,7 @@
 #ifndef XROTOR_NOGRAPHICS_CPP_XAERO_H
 #define XROTOR_NOGRAPHICS_CPP_XAERO_H
 
-#include <vector>
 #include "common.h"
-typedef std::vector<double> vec;
 
 namespace xaero {
     void setiaero(common::context &context);

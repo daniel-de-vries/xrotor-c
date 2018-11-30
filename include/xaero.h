@@ -13,20 +13,20 @@ namespace xaero {
     void setiaero(common::context &context);
 
     void putaero(common::context &context,
-                 unsigned n, double xisect, double a0, double clmax, double clmin,
+                 int n, double xisect, double a0, double clmax, double clmin,
                  double dclda, double dclda_stall, double dcl_stall,
                  double cdmin, double clcdmin, double dcddcl2,
                  double cmcon, double mcrit, double reref, double rexp);
 
     void getclcdcm(common::context &context,
-                   unsigned is, double alf, double w, double rey,
+                   int is, double alf, double w, double rey,
                    double clfit, double cl_alf, double cl_w,
                    double clmax, double clmin, double dcl_stall, double stallf,
                    double cdrag, double cd_alf, double cd_w, double cd_rey,
                    double cmom, double cm_al, double cm_w);
 
     void getalf(common::context &context,
-                unsigned is, const double &clift, const double &w,
+                int is, const double &clift, const double &w,
                 double &alf, double &alf_cl, double &alf_w, bool &stallf);
 
     void clcdcm(common::context &context,

@@ -24,11 +24,11 @@ namespace userio {
 
     void lc2uc(string &input);
 
-    void readi(unsigned n, ivec &ivar, bool &error);
-    void readr(unsigned n, vec &var, bool &error);
+    void readi(int n, ivec &ivar, bool &error);
+    void readr(int n, vec &var, bool &error);
 
-    void getint(string &input, ivec &a, unsigned long &n, bool &error);
-    void getflt(string &input, vec &a, unsigned long &n, bool &error);
+    void getint(string &input, ivec &a, int &n, bool &error);
+    void getflt(string &input, vec &a, int &n, bool &error);
 }
 
 #endif //XROTOR_NOGRAPHICS_CPP_USERIO_H

@@ -36,10 +36,10 @@ namespace common {
 
         double rho, rmu, vso, vel, rad, gee, alt;
 
-        unsigned long ii, iinf, incr, nn, nblds, ixspac,
-                      niterd, nitera;
+        int ii, iinf, incr, nn, nblds, ixspac,
+            niterd, nitera;
 
-        vector<unsigned> iaero;
+        vector<int> iaero;
 
         double dbeta,
                xi0, xitip, xinf,
@@ -50,7 +50,7 @@ namespace common {
 
         vector<double> ubody;
 
-        unsigned naero;
+        int naero;
         vector<double> xiaero;
         vector<vector<double>> aerodata;
 

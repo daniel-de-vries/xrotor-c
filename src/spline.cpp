@@ -38,7 +38,7 @@ namespace spline {
      *                  if == -999.0, use zero 2rd derivative
      */
     void splind(const vec &x, vec &xs, const vec &s, double xs1, double xs2) {
-        unsigned long n = x.size();
+        int n = (int)x.size();
         if (n == 1) {
             xs[0] = .0f;
             return;
@@ -113,7 +113,7 @@ namespace spline {
      *
      */
     void splina(const vec &x, vec &xs, const vec &s) {
-        unsigned long n = x.size();
+        int n = (int)x.size();
         if (n == 1) {
             xs[0] = 0.f;
             return;
@@ -122,7 +122,7 @@ namespace spline {
         bool lend = true;
         double xs1 = 0;
         double xs2 = 0;
-        for (unsigned long long i = 0; i < n-2; i++) {
+        for (int i = 0; i < n-2; i++) {
             double ds = s[i+1] - s[i];
 
             if (ds == 0.f) {
@@ -158,8 +158,8 @@ namespace spline {
      * @param a, b, c, d    arrays
      */
     void trisol(vec &a, const vec &b, vec &c, vec &d) {
-        unsigned long kk = a.size();
-        for (unsigned long k = 1; k < kk-1; k++) {
+        int kk = (int) a.size();
+        for (int k = 1; k < kk-1; k++) {
             c[k-1] /= a[k-1];
             d[k-1] /= a[k-1];
             a[k] -= b[k] * c[k-1];
@@ -168,7 +168,7 @@ namespace spline {
 
         d[kk-1] /= a[kk-1];
 
-        for (unsigned long k = kk-2; k >= 0; k--) {
+        for (int k = kk-2; k >= 0; k--) {
             d[k] -= c[k] * d[k+1];
         }
     }
@@ -180,11 +180,11 @@ namespace spline {
      * @see[spline::seval, spline::deval].
      */
     void _eval_helper(double ss, const vec &x, const vec &xs, const vec &s,
-                      unsigned long &i, double &ds, double &t, double &cx1, double &cx2) {
-        unsigned long ilow = 0;
-        i = x.size()-1;
+                      int &i, double &ds, double &t, double &cx1, double &cx2) {
+        int ilow = 0;
+        i = (int)(x.size()-1);
         while (i - ilow > 1) {
-            unsigned long imid = (i + ilow) / 2;
+            int imid = (i + ilow) / 2;
             if (ss < s[imid]) {
                 i = imid;
             } else {
@@ -210,11 +210,11 @@ namespace spline {
      * @return      x(ss)
      */
     double seval(double ss, const vec &x, const vec &xs, const vec &s) {
-        unsigned long n = x.size();
+        int n = (int) x.size();
         if (n == 1)
             return xs[0];
 
-        unsigned long i;
+        int i;
         double ds, t, cx1, cx2;
         spline::_eval_helper(ss, x, xs, s, i, ds, t, cx1, cx2);
         return t * x[i] + (1 - t) * x[i-1] + (t - t*t) * ((1 - t) * cx1 - t * cx2);
@@ -232,11 +232,11 @@ namespace spline {
      * @return      [d(x)/d(s)](ss)
      */
     double deval(double ss, const vec &x, const vec &xs, const vec &s) {
-        unsigned long n = x.size();
+        int n = (int) x.size();
         if (n == 1)
             return xs[0];
 
-        unsigned long i;
+        int i;
         double ds, t, cx1, cx2;
         spline::_eval_helper(ss, x, xs, s, i, ds, t, cx1, cx2);
         return (x[i] - x[i-1] + (1 - 4*t + 3*t*t) * cx1 + t * (3*t - 2) * cx2) / ds;
@@ -247,8 +247,8 @@ namespace spline {
      *
      * @see[spline::segspl].
      */
-    void _segspl_helper(const vec &x, vec &xs, const vec &s, unsigned long iseg, unsigned long iseg0) {
-        unsigned long nseg = iseg - iseg0 + 1;
+    void _segspl_helper(const vec &x, vec &xs, const vec &s, int iseg, int iseg0) {
+        int nseg = iseg - iseg0 + 1;
         vec _x(nseg), _xs(nseg), _s(nseg);
         std::copy(x.begin() + iseg0, x.end(), _x.begin());
         std::copy(xs.begin() + iseg0, xs.end(), _xs.begin());
@@ -268,7 +268,7 @@ namespace spline {
      * @param xs    d(x)/d(s) array (calculated)
      */
     void segspl(const vec &x, vec &xs, const vec &s) {
-        unsigned long n = x.size();
+        int n = (int) x.size();
         if (n == 1) {
             xs[0] = 0.f;
             return;
@@ -277,8 +277,8 @@ namespace spline {
         if (s[0]   == s[1]  ) throw std::runtime_error("segspl:  First input point duplicated");
         if (s[n-1] == s[n-2]) throw std::runtime_error("segspl:  Last  input point duplicated");
 
-        unsigned long iseg0 = 0;
-        for (unsigned long iseg = 1; iseg < n-3; iseg++) {
+        int iseg0 = 0;
+        for (int iseg = 1; iseg < n-3; iseg++) {
             if (s[iseg] == s[iseg+1]) {
                 _segspl_helper(x, xs, s, iseg, iseg0);
                 iseg0 = iseg + 1;

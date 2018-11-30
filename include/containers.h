@@ -7,35 +7,35 @@
 
 class Matrix {
 public:
-    Matrix(unsigned long m, unsigned long n);
-    Matrix(unsigned long m, unsigned long n, double val);
+    Matrix(int m, int n);
+    Matrix(int m, int n, double val);
     Matrix(const Matrix& mat);
     ~Matrix();
 
-    double& operator() (unsigned long i, unsigned long j);
-    double operator() (unsigned long i, unsigned long j) const;
+    double& operator() (int i, int j);
+    double operator() (int i, int j) const;
 
     Matrix& zeros();
 
 private:
-    unsigned long m_, n_;
+     int m_, n_;
     double* data_;
 };
 
 class Cube {
 public:
-    Cube(unsigned long m, unsigned long n, unsigned long o);
-    Cube(unsigned long m, unsigned long n, unsigned long o, double val);
+    Cube( int m,  int n,  int o);
+    Cube( int m,  int n,  int o, double val);
     Cube(const Cube& cube);
     ~Cube();
 
-    double& operator() (unsigned long i, unsigned long j, unsigned long k);
-    double operator() (unsigned long i, unsigned long j, unsigned long k) const;
+    double& operator() ( int i,  int j,  int k);
+    double operator() ( int i,  int j,  int k) const;
 
     Cube& zeros();
 
 private:
-    unsigned long m_, n_, o_;
+     int m_, n_, o_;
     double* data_;
 };
 

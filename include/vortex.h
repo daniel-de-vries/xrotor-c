@@ -10,7 +10,7 @@
 typedef std::vector<double> vec;
 
 namespace vortex {
-    void vrtxc0(unsigned long ii, unsigned nblds, bool lduct, double rake,
+    void vrtxc0(int ii, int nblds, bool lduct, double rake,
                 const vec &xi, const vec &xv, const vec &gam, double adw,
                 Cube &vind_gam, Matrix &vind_adw);
 

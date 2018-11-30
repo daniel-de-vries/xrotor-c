@@ -25,9 +25,11 @@ namespace xaero {
      */
     void setiaero(common::context &context) {
         context.iaero.resize(context.ii);
-        for (unsigned long i = 0; i < context.ii; i++) {
+
+        int i, n;
+        for (i = 0; i < context.ii; i++) {
             context.iaero[i] = 0;
-            for (unsigned n = 0; n < context.naero; n++) {
+            for (n = 0; n < context.naero; n++) {
                 if (context.xiaero[n] <= context.xi[i])
                     context.iaero[i] = n;
             }
@@ -55,7 +57,7 @@ namespace xaero {
      * @param rexp          Reynold's number exponent (Cd ~ Re^rexp)
      */
     void putaero(common::context &context,
-                 unsigned n, double xisect, double a0, double clmax, double clmin,
+                 int n, double xisect, double a0, double clmax, double clmin,
                  double dclda, double dclda_stall, double dcl_stall,
                  double cdmin, double clcdmin, double dcddcl2,
                  double cmcon, double mcrit, double reref, double rexp) {
@@ -102,13 +104,13 @@ namespace xaero {
      * @param cm_w                      d(C_m)/d(w)
      */
     void getclcdcm(common::context &context,
-                   unsigned is, double alf, double w, double rey,
+                   int is, double alf, double w, double rey,
                    double &clift, double &cl_alf, double &cl_w,
                    double &clmax, double &clmin, double &dcl_stall, bool &stallf,
                    double &cdrag, double &cd_alf, double &cd_w, double &cd_rey,
                    double &cmom, double &cm_al, double &cm_w) {
         // Check for installed aero data section index
-        unsigned n = context.iaero[is];
+        int n = context.iaero[is];
         if (n < 0 || n >= context.naero) {
             bool error = false;
 
@@ -222,7 +224,7 @@ namespace xaero {
      * @param stallf    true if stalled
      */
     void getalf(common::context &context,
-                unsigned is, const double &clift, const double &w,
+                int is, const double &clift, const double &w,
                 double &alf, double &alf_cl, double &alf_w, bool &stallf) {
         const int niter = 10;
         const double eps = 1.0e-5;

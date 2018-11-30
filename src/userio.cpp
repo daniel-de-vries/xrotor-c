@@ -121,8 +121,8 @@ namespace userio {
 
         line.erase(0, line.find_first_not_of(" \n"));
 
-        unsigned long k = min(line.find_first_of(" +-.,0123456789"), line.length());
-        command = line.substr(min(k, 4ul));
+        int k = (int) min(line.find_first_of(" +-.,0123456789"), line.length());
+        command = line.substr(min(k, 4));
         lc2uc(command);
 
         if (k < 1) k = 5;
@@ -152,13 +152,13 @@ namespace userio {
      * @param fptr      either userio::getint() or userio::getflt()
      */
     template <typename T>
-    void _read_helper(unsigned n, vector<T> &var, bool &error,
-                      void (*fptr)(string&, vector<T>&, unsigned long&, bool&)) {
+    void _read_helper(int n, vector<T> &var, bool &error,
+                      void (*fptr)(string&, vector<T>&, int&, bool&)) {
         string line;
         getline(cin, line);
 
         vector<T> tmp(var);
-        unsigned long n_tmp = n;
+        int n_tmp = n;
         fptr(line, tmp, n_tmp, error);
 
         if (error) return;
@@ -172,7 +172,7 @@ namespace userio {
      * @param ivar      array of integers
      * @param error     indicates if something went wrong while trying to read the input
      */
-    void readi(unsigned n, ivec &ivar, bool &error) {
+    void readi(int n, ivec &ivar, bool &error) {
         _read_helper<int>(n, ivar, error, &getint);
     }
 
@@ -183,7 +183,7 @@ namespace userio {
      * @param var       array of doubles
      * @param error     indicates if something went wrong while trying to read the input
      */
-    void readr(unsigned n, vec &var, bool &error) {
+    void readr(int n, vec &var, bool &error) {
         _read_helper<double>(n, var, error, &getflt);
     }
 
@@ -203,11 +203,11 @@ namespace userio {
      *       improperly.
      */
     template <typename T, typename F>
-    void _get_helper(string &input, vector<T> &a, unsigned long &n, bool &error, F fun) {
+    void _get_helper(string &input, vector<T> &a, int &n, bool &error, F fun) {
         if (n == 0) a.resize(0);
         unsigned i = 0;
         while (input.length() > 0 && (n == 0 || i < n)) {
-            unsigned long k = min(input.find_first_of(" ,"), input.length());
+            int k = (int)min(input.find_first_of(" ,"), input.length());
             try {
                 T val = fun(input.substr(0, k));
                 if (n != 0) {
@@ -241,7 +241,7 @@ namespace userio {
      * @param n         number of integers
      * @param error     indicates whether something went wrong
      */
-    void getint(string &input, ivec &a, unsigned long &n, bool &error) {
+    void getint(string &input, ivec &a, int &n, bool &error) {
         _get_helper(input, a, n, error, [](string s) -> int { return stoi(s); });
     }
 
@@ -260,7 +260,7 @@ namespace userio {
      * @param n         number of doubles
      * @param error     indicates whether something went wrong
      */
-    void getflt(string &input, vec &a, unsigned long &n, bool &error) {
+    void getflt(string &input, vec &a, int &n, bool &error) {
         _get_helper(input, a, n, error, [](string s) -> double { return stod(s); });
     }
 }

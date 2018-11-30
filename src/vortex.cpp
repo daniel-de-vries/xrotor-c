@@ -26,7 +26,7 @@ namespace vortex {
      * @param vind_adw  sensitivity of swirl velocity to wake advance ratio (calculated)
      *                  @note must be of size (3, ii)
      */
-    void vrtxc0(unsigned long ii, unsigned nblds, bool lduct, double rake,
+    void vrtxc0(int ii, int nblds, bool lduct, double rake,
                 const vec &xi, const vec &xv, const vec &gam, double adw,
                 Cube &vind_gam, Matrix &vind_adw) {
         auto blds = (double)nblds;
@@ -55,10 +55,10 @@ namespace vortex {
         const int ntdim = 5000;
         vec thetspc(ntdim);
 
-        unsigned long nthet;
+        int nthet;
         double thet = 0.0;
         double dth = dth1;
-        for (unsigned long i = 0; true; i++) {
+        for (int i = 0; true; i++) {
             if (i < ntdim) {
                 thetspc[i] = thet;
             } else {
@@ -85,7 +85,7 @@ namespace vortex {
 
         if (lduct) {
             // use simple mean swirl to get swirl at blade
-            for (unsigned long i = 0; i < ii; i++) {
+            for (int i = 0; i < ii; i++) {
                 vind_gam(2, i, i) =  blds / (4.0 * pi * xi[i]);
                 vind_gam(0, i, i) =  vind_gam(2, i, i) * xi[i]  / adw;
                 vind_adw(0, i)    = -vind_gam(0, i, i) * gam[i] / adw;
@@ -101,13 +101,14 @@ namespace vortex {
                    r2x, r2y, r2z, r2_adw, a[3], b[3], uvw[3];
             Matrix uvw_a(3, 3), uvw_b(3, 3);
             // velocity influences for point - R0
-            for (unsigned long i = 0; i < ii; i++) {
+            int j, n, l;
+            for (int i = 0; i < ii; i++) {
                 r0x = xi[i] * tanrak;
                 r0y = xi[i];
                 r0z = 0.0;
 
                 // For each vortex trailing leg (II+1 legs starting at XV(J))
-                for (unsigned long j = 0; j < ii+1; j++) {
+                for (j = 0; j < ii+1; j++) {
                     vsum[0] = 0; vsum[1] = 0; vsum[2] = 0;
                     vadw[0] = 0; vadw[1] = 0; vadw[2] = 0;
 
@@ -116,7 +117,7 @@ namespace vortex {
 
                     // For each blade
                     thetoff = 0.0;
-                    for (unsigned n = 0; n < nblds; n++) {
+                    for (n = 0; n < nblds; n++) {
                         // For angles around helix to the far-field
                         thet1 = thetspc[0];
                         r1x = xxv + thet1 * xitip * adw;
@@ -124,7 +125,7 @@ namespace vortex {
                         r1z = rv * sin(thet1 + thetoff);
                         r1_adw = thet1 * xitip;
 
-                        for (unsigned long l = 0; l < nthet - 1; l++) {
+                        for (l = 0; l < nthet - 1; l++) {
                             thet2 = thetspc[l + 1];
                             r2x = xxv + thet2 * xitip * adw;
                             r2y = rv * cos(thet2 + thetoff);
@@ -214,6 +215,7 @@ namespace vortex {
         uvw_a.zeros();
         uvw_b.zeros();
 
+        int k, l;
         // contribution from the vortex leg
         if (amag * bmag != 0) {
             double axb[3] = {a[1]*b[2] - a[2]*b[2],
@@ -244,10 +246,10 @@ namespace vortex {
             double t_asq = -t / den * den_asq - 0.5 / (den * amag * asq);
             double t_bsq = -t / den * den_bsq - 0.5 / (den * bmag * bsq);
 
-            for (unsigned k = 0; k < 2; k++) {
+            for (k = 0; k < 2; k++) {
                 uvw[k] = axb[k] * t;
 
-                for (unsigned l = 0; l < 2; l++) {
+                for (l = 0; l < 2; l++) {
                     uvw_a(k, l) = (axb[k] * t_asq) * (a[l] * 2.0)
                                 + (axb[k] * t_adb) * b[l]
                                 + (axb_a[k][l] * t);
@@ -259,10 +261,10 @@ namespace vortex {
         }
 
         double pi4 = 4.0 * common::pi;
-        for (unsigned k = 0; k < 2; k++) {
+        for (k = 0; k < 2; k++) {
             uvw[k] /= pi4;
 
-            for (unsigned l = 0; l < 2; l++) {
+            for (l = 0; l < 2; l++) {
                 uvw_a(k, l) /= pi4;
                 uvw_b(k, l) /= pi4;
             }

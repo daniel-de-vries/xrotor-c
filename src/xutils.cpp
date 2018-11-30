@@ -7,8 +7,23 @@
 
 namespace xutils {
 
-    void gauss(int nn, Matrix &z, Matrix &r) {
-        const int nrhs = r.size()[1];
+    /**
+     * Solve general NxN system in N unknowns with arbitrary number of righthand sides.
+     *
+     * Asumes system is invertible...
+     * ...if it isn't, a divide by zero will result.
+     *
+     * The matrix r represents the righthand side. If only one system is to be solved,
+     * this should be a Nx1 matrix. If it is an NxM matrix, M systems of equations
+     * with the same coefficient matrix will be solved.
+     *
+     * @param z     coefficient matrix (destroyed by the solution process)
+     * @param r     right hand sides(s) (replaced by the solution vector(s))
+     */
+    void gauss(Matrix &z, Matrix &r) {
+        const int* _ = r.size();
+        const int nn = _[0];
+        const int nrhs = _[1];
 
         int np, np1, nx, n, l, k;
         double pivot, temp, ztmp;

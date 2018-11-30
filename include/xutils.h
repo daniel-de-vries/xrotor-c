@@ -8,7 +8,7 @@
 #include "containers.h"
 
 namespace xutils {
-    void gauss(int nn, Matrix &z, Matrix &r);
+    void gauss(Matrix &z, Matrix &r);
 }
 
 #endif //XROTOR_NOGRAPHICS_C_XUTILS_H

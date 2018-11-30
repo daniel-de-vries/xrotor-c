@@ -126,6 +126,9 @@ namespace xio {
         context.iinf = context.ii + context.ii / 2;
 
         xaero::setiaero(context);
+
+        // XROTOR continues to calculate the operating point here
+        // We skip this, since we want to use OPER to calculate an off-design operating point
     }
 
     void rdline(ifstream &ifs, string &line) {

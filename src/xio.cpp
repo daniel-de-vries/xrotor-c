@@ -2,7 +2,6 @@
 // Created by daniel.devries on 11/29/2018.
 //
 
-#include <varargs.h>
 #include <iostream>
 #include <cstdio>
 #include <cstdarg>
@@ -113,6 +112,7 @@ namespace xio {
         spline::spline(w4, w5, w1);
         spline::spline(w6, w7, w1);
 
+        // set radial stations for built-in distribution scheme
         // TODO: call xrotor::setx()
         // TODO: call xoper::xwinit()
 

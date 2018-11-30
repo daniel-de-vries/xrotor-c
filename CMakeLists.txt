@@ -7,11 +7,11 @@ set(CMAKE_CXX_STANDARD 14)
 include_directories("include")
 
 add_executable(xrotor_nographics_c main.cpp
-        src/containers.cpp
         src/spline.cpp
         src/userio.cpp
         src/vortex.cpp
         src/xaero.cpp
-        # src/xio.cpp
+        src/xio.cpp
+        src/xrotor.cpp
         src/xutils.cpp)
 #target_link_libraries(xrotor_nographics_c ${ARMADILLO_LIBRARIES})

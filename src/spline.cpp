@@ -17,9 +17,10 @@ namespace spline {
      * @param s     independent variable array
      * @param x     dependent variable array
      * @param xs    d(x)/d(s) array (calculated)
+     * @param n     number of points
      */
-    void spline(const vec &x, vec &xs, const vec &s) {
-        return spline::splind(x, xs, s, 999.f, 999.f);
+    void spline(const double x[], double xs[], const double s[], int n) {
+        return spline::splind(x, xs, s, n, 999.f, 999.f);
     }
 
     /**
@@ -33,20 +34,20 @@ namespace spline {
      * @param s         independent variable array
      * @param x         dependent variable array
      * @param xs        d(x)/d(s) array (calculated)
+     * @param n     number of points
      * @param xs1, xs2  endpoint derivatives
      *                  if ==  999.0, use zero 2nd derivative
      *                  if == -999.0, use zero 2rd derivative
      */
-    void splind(const vec &x, vec &xs, const vec &s, double xs1, double xs2) {
-        int n = (int)x.size();
+    void splind(const double x[], double xs[], const double s[], int n, double xs1, double xs2) {
         if (n == 1) {
             xs[0] = .0f;
             return;
         }
 
-        vec a(n), b(n), c(n);
+        double a[n], b[n], c[n];
 
-        for (unsigned long i = 1; i < n -1; i++) {
+        for (int i = 1; i < n -1; i++) {
             double dsm = s[i] - s[i-1];
             double dsp = s[i+1] - s[i];
             b[i] = dsp;
@@ -93,7 +94,7 @@ namespace spline {
         }
 
         // solve for derivative array xs
-        return spline::trisol(a, b, c, xs);
+        return spline::trisol(a, b, c, xs, n);
     }
 
     /**
@@ -108,12 +109,12 @@ namespace spline {
      * @param s     independent variable array
      * @param x     dependent variable array
      * @param xs    d(x)/d(s) array
+     * @param n     number of points
      *
      * @note All three arrays should be conformant.
      *
      */
-    void splina(const vec &x, vec &xs, const vec &s) {
-        int n = (int)x.size();
+    void splina(const double x[], double xs[], const double s[], int n) {
         if (n == 1) {
             xs[0] = 0.f;
             return;
@@ -156,9 +157,9 @@ namespace spline {
      * the solution. a and c are destroyed.
      *
      * @param a, b, c, d    arrays
+     * @param n     number of points
      */
-    void trisol(vec &a, const vec &b, vec &c, vec &d) {
-        int kk = (int) a.size();
+    void trisol(double a[], const double b[], double c[], double d[], int kk) {
         for (int k = 1; k < kk-1; k++) {
             c[k-1] /= a[k-1];
             d[k-1] /= a[k-1];
@@ -179,10 +180,10 @@ namespace spline {
      *
      * @see[spline::seval, spline::deval].
      */
-    void _eval_helper(double ss, const vec &x, const vec &xs, const vec &s,
+    void _eval_helper(double ss, const double x[], double xs[], const double s[], int n,
                       int &i, double &ds, double &t, double &cx1, double &cx2) {
         int ilow = 0;
-        i = (int)(x.size()-1);
+        i = n-1;
         while (i - ilow > 1) {
             int imid = (i + ilow) / 2;
             if (ss < s[imid]) {
@@ -207,16 +208,16 @@ namespace spline {
      * @param s     independent variable array
      * @param x     dependent variable array
      * @param xs    d(x)/d(s) array
+     * @param n     number of points
      * @return      x(ss)
      */
-    double seval(double ss, const vec &x, const vec &xs, const vec &s) {
-        int n = (int) x.size();
+    double seval(double ss, const double x[], double xs[], const double s[], int n) {
         if (n == 1)
             return xs[0];
 
         int i;
         double ds, t, cx1, cx2;
-        spline::_eval_helper(ss, x, xs, s, i, ds, t, cx1, cx2);
+        spline::_eval_helper(ss, x, xs, s, n, i, ds, t, cx1, cx2);
         return t * x[i] + (1 - t) * x[i-1] + (t - t*t) * ((1 - t) * cx1 - t * cx2);
     }
 
@@ -229,33 +230,19 @@ namespace spline {
      * @param s     independent variable array
      * @param x     dependent variable array
      * @param xs    d(x)/d(s) array
+     * @param n     number of points
      * @return      [d(x)/d(s)](ss)
      */
-    double deval(double ss, const vec &x, const vec &xs, const vec &s) {
-        int n = (int) x.size();
+    double deval(double ss, const double x[], double xs[], const double s[], int n) {
         if (n == 1)
             return xs[0];
 
         int i;
         double ds, t, cx1, cx2;
-        spline::_eval_helper(ss, x, xs, s, i, ds, t, cx1, cx2);
+        spline::_eval_helper(ss, x, xs, s, n, i, ds, t, cx1, cx2);
         return (x[i] - x[i-1] + (1 - 4*t + 3*t*t) * cx1 + t * (3*t - 2) * cx2) / ds;
     }
 
-    /**
-     * Helper function for spline::segspl() to avoid code duplication.
-     *
-     * @see[spline::segspl].
-     */
-    void _segspl_helper(const vec &x, vec &xs, const vec &s, int iseg, int iseg0) {
-        int nseg = iseg - iseg0 + 1;
-        vec _x(nseg), _xs(nseg), _s(nseg);
-        std::copy(x.begin() + iseg0, x.end(), _x.begin());
-        std::copy(xs.begin() + iseg0, xs.end(), _xs.begin());
-        std::copy(s.begin() + iseg0, s.end(), _s.begin());
-        spline::splind(_x, _xs, _s, -999.f, -999.f);
-        std::copy(_xs.begin(), _xs.end(), xs.begin() + iseg0);
-    }
 
     /**
      * Spline x(s) array just like spline::spline(),
@@ -266,9 +253,9 @@ namespace spline {
      * @param s     independent variable array
      * @param x     dependent variable array
      * @param xs    d(x)/d(s) array (calculated)
+     * @param n     number of points
      */
-    void segspl(const vec &x, vec &xs, const vec &s) {
-        int n = (int) x.size();
+    void segspl(const double x[], double xs[], const double s[], int n) {
         if (n == 1) {
             xs[0] = 0.f;
             return;
@@ -280,12 +267,12 @@ namespace spline {
         int iseg0 = 0;
         for (int iseg = 1; iseg < n-3; iseg++) {
             if (s[iseg] == s[iseg+1]) {
-                _segspl_helper(x, xs, s, iseg, iseg0);
+                splind(x + iseg0, xs + iseg0, s + iseg0, iseg - iseg0 + 1, -999.f, -999.f);
                 iseg0 = iseg + 1;
             }
         }
 
-        _segspl_helper(x, xs, s, n, iseg0);
+        spline::splind(x + iseg0, xs + iseg0, s + iseg0, n - iseg0 + 1, -999.f, -999.f);
     }
 }
 

@@ -26,17 +26,27 @@ namespace vortex {
      * @param vind_adw  sensitivity of swirl velocity to wake advance ratio (calculated)
      *                  @note must be of size (3, ii)
      */
-    void vrtxc0(int ii, int nblds, bool lduct, double rake,
-                const vec &xi, const vec &xv, const vec &gam, double adw,
-                Cube &vind_gam, Matrix &vind_adw) {
+    void vrtxc0(int imax, int ii, int nblds, bool lduct, double rake,
+                const double xi[imax], const double xv[imax], const double gam[imax], double adw,
+                double vind_gam[3][imax][imax], double vind_adw[3][imax]) {
+        const int ntdim = 5000;
+
         auto blds = (double)nblds;
 
         double xi0 = xv[0];
         double xitip = xv[ii + 1];
         double tanrak = tan(rake);
 
-        vind_gam.zeros();
-        vind_adw.zeros();
+        for (int i = 0; i < ii; i++) {
+            for (int j = 0; j < ii; j++) {
+                vind_gam[0][i][j] = 0;
+                vind_gam[1][i][j] = 0;
+                vind_gam[2][i][j] = 0;
+            }
+            vind_adw[0][i] = 0;
+            vind_adw[1][i] = 0;
+            vind_adw[2][i] = 0;
+        }
 
         // Set up variable theta spacing for near, intermediate and far field
         double dth1  = pi / 60.;
@@ -52,43 +62,41 @@ namespace vortex {
         double ddth1 = (dth2 - dth1) / (2.0 * (thet1        ) / (dth2 + dth3) - 1.0);
         double ddth2 = (dth3 - dth2) / (2.0 * (thet2 - thet1) / (dth3 + dth2) - 1.0);
 
-        const int ntdim = 5000;
-        vec thetspc(ntdim);
-
+        double thetspc[ntdim];
         int nthet;
         double thet = 0.0;
         double dth = dth1;
-        for (int i = 0; true; i++) {
-            if (i < ntdim) {
-                thetspc[i] = thet;
-            } else {
-                // TODO: This approach deviates from the FORTRAN code. Check that this actually works.
-                thetspc.push_back(thet);
-            }
-            thet += dth;
-
+        bool overflow = true;
+        for (int i = 0; i < ntdim; i++) {
             if (thet < thet1) {
+                thetspc[i] = thet;
+                thet += dth;
                 dth += ddth1;
             } else if (thet < thet2) {
+                thetspc[i] = thet;
+                thet += dth;
                 dth += ddth2;
             } else if (thet < thet3) {
+                thetspc[i] = thet;
+                thet += dth;
                 dth = dth3;
             } else {
                 nthet = i-1;
+                overflow = false;
                 break;
             }
         }
-        if (nthet > ntdim) {
-            cout << "The number of vortex segments is very large" << endl;
+        if (overflow) {
+            cout << "Too many vortex segments for spacing array" << endl;
+            nthet = ntdim;
         }
-        // TODO: In the FORTRAN code, the number of segments is capped at ntdim. Check that this works like this too.
 
         if (lduct) {
             // use simple mean swirl to get swirl at blade
             for (int i = 0; i < ii; i++) {
-                vind_gam(2, i, i) =  blds / (4.0 * pi * xi[i]);
-                vind_gam(0, i, i) =  vind_gam(2, i, i) * xi[i]  / adw;
-                vind_adw(0, i)    = -vind_gam(0, i, i) * gam[i] / adw;
+                vind_gam[2][i][i] =  blds / (4.0 * pi * xi[i]);
+                vind_gam[0][i][i] =  vind_gam[2][i][i] * xi[i]  / adw;
+                vind_adw[0][i]    = -vind_gam[0][i][i] * gam[i] / adw;
             }
         } else {
             // Do a discrete vortex integration of slipstream vortices
@@ -99,7 +107,7 @@ namespace vortex {
                    vsum[3], vadw[3], rv, xxv, thetoff,
                    r1x, r1y, r1z, r1_adw,
                    r2x, r2y, r2z, r2_adw, a[3], b[3], uvw[3];
-            Matrix uvw_a(3, 3), uvw_b(3, 3);
+            double uvw_a[3][3], uvw_b[3][3];
             // velocity influences for point - R0
             int j, n, l;
             for (int i = 0; i < ii; i++) {
@@ -144,12 +152,12 @@ namespace vortex {
                             vsum[1] += uvw[1];
                             vsum[2] += uvw[2];
 
-                            vadw[0] += uvw_a(0, 0) * r1_adw
-                                    +  uvw_b(0, 0) * r2_adw;
-                            vadw[1] += uvw_a(1, 1) * r1_adw
-                                    +  uvw_b(1, 1) * r2_adw;
-                            vadw[2] += uvw_a(2, 2) * r1_adw
-                                    +  uvw_b(2, 2) * r2_adw;
+                            vadw[0] += uvw_a[0][0] * r1_adw
+                                    +  uvw_b[0][0] * r2_adw;
+                            vadw[1] += uvw_a[1][1] * r1_adw
+                                    +  uvw_b[1][1] * r2_adw;
+                            vadw[2] += uvw_a[2][2] * r1_adw
+                                    +  uvw_b[2][2] * r2_adw;
 
                             thet1 = thet2;
                             r1x = r2x;
@@ -167,20 +175,20 @@ namespace vortex {
 
                     // Open wake, interdigitate all vortex lines
                     if (j < ii) {
-                        vind_gam(0, i, j) = -vsum[0];
-                        vind_gam(1, i, j) = -vsum[1];
-                        vind_gam(2, i, j) = -vsum[2];
-                        vind_adw(0, i) -= vadw[0] * gam[j];
-                        vind_adw(1, i) -= vadw[1] * gam[j];
-                        vind_adw(2, i) -= vadw[2] * gam[j];
+                        vind_gam[0][i][j] = -vsum[0];
+                        vind_gam[1][i][j] = -vsum[1];
+                        vind_gam[2][i][j] = -vsum[2];
+                        vind_adw[0][i] -= vadw[0] * gam[j];
+                        vind_adw[1][i] -= vadw[1] * gam[j];
+                        vind_adw[2][i] -= vadw[2] * gam[j];
                     }
                     if (j > 0) {
-                        vind_gam(0, i, j-1) -= vsum[0];
-                        vind_gam(1, i, j-1) -= vsum[1];
-                        vind_gam(2, i, j-1) -= vsum[2];
-                        vind_adw(0, i) += vadw[0] * gam[j-1];
-                        vind_adw(1, i) += vadw[1] * gam[j-1];
-                        vind_adw(2, i) += vadw[2] * gam[j-1];
+                        vind_gam[0][i][j-1] -= vsum[0];
+                        vind_gam[1][i][j-1] -= vsum[1];
+                        vind_gam[2][i][j-1] -= vsum[2];
+                        vind_adw[0][i] += vadw[0] * gam[j-1];
+                        vind_adw[1][i] += vadw[1] * gam[j-1];
+                        vind_adw[2][i] += vadw[2] * gam[j-1];
                     }
                 }
             }
@@ -204,18 +212,22 @@ namespace vortex {
      * @param uvw_b dUVW/dB sensitivity (calculated)
      *              @note must be of size (3, 3)
      */
-    void vorsegvel(const double a[3], const double b[3], double uvw[3], Matrix &uvw_a, Matrix &uvw_b) {
+    void vorsegvel(const double a[3], const double b[3], double uvw[3], double uvw_a[3][3], double uvw_b[3][3]) {
         double asq = a[0]*a[0] + a[1]*a[1] + a[2]*a[2];
         double bsq = b[0]*b[0] + b[1]*b[1] + b[2]*b[2];
 
         double amag = sqrt(asq);
         double bmag = sqrt(bsq);
 
-        uvw[0] = 0; uvw[1] = 0; uvw[2] = 0;
-        uvw_a.zeros();
-        uvw_b.zeros();
-
         int k, l;
+        for (k = 0; k < 3; k++) {
+            uvw[k] = 0;
+            for (l = 0; l < 3; l++) {
+                uvw_a[k][l] = 0;
+                uvw_b[k][l] = 0;
+            }
+        }
+
         // contribution from the vortex leg
         if (amag * bmag != 0) {
             double axb[3] = {a[1]*b[2] - a[2]*b[2],
@@ -250,12 +262,12 @@ namespace vortex {
                 uvw[k] = axb[k] * t;
 
                 for (l = 0; l < 2; l++) {
-                    uvw_a(k, l) = (axb[k] * t_asq) * (a[l] * 2.0)
+                    uvw_a[k][l] = (axb[k] * t_asq) * (a[l] * 2.0)
                                 + (axb[k] * t_adb) * b[l]
                                 + (axb_a[k][l] * t);
-                    uvw_b(k, l) = (axb[k] * t_bsq) * (b[l] * 2.0)
-                                  + (axb[k] * t_adb) * a[l]
-                                  + (axb_b[k][l] * t);
+                    uvw_b[k][l] = (axb[k] * t_bsq) * (b[l] * 2.0)
+                                + (axb[k] * t_adb) * a[l]
+                                + (axb_b[k][l] * t);
                 }
             }
         }
@@ -265,8 +277,8 @@ namespace vortex {
             uvw[k] /= pi4;
 
             for (l = 0; l < 2; l++) {
-                uvw_a(k, l) /= pi4;
-                uvw_b(k, l) /= pi4;
+                uvw_a[k][l] /= pi4;
+                uvw_b[k][l] /= pi4;
             }
         }
     }

@@ -39,20 +39,28 @@ namespace common {
         int ii, iinf, incr, nn, nblds, ixspac,
             niterd, nitera;
 
-        vector<int> iaero;
+        float version;
+        double dt;
+
+        int iaero[ix];
 
         double dbeta,
                xi0, xitip, xinf,
-               rake;
-        vector<double> ch, beta, beta0, t,
-                       xi, dxi,
-                       xv;
+               xpitch, rake;
+        double ch[ix], beta[ix], beta0[ix], t[ix],
+               xi[ix], dxi[ix],
+               xv[ix];
 
-        vector<double> ubody;
+        int nadd;
+
+        double ubody[ix];
+        double urduct;
 
         int naero;
-        vector<double> xiaero;
-        vector<vector<double>> aerodata;
+        double xiaero[nax];
+        double aerodata[ndx][nax];
+
+        int ncase, kcase, iwtyp;
 
         double adv, adw, adwfctr,
                 rms, rlx, effinv,
@@ -60,6 +68,11 @@ namespace common {
                 ttot, ptot, qtot,
                 tinv, pinv, twak, pwak, tvis, pvis,
                 gresmx, fresmx, aresmx;
+
+        double w0[iwx], w1[iwx], w2[iwx], w3[iwx], w4[iwx],
+               w5[iwx], w6[iwx], w7[iwx], w8[iwx], w9[iwx];
+
+        int npwrvar;
 
         double xw0;
 

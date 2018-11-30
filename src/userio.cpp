@@ -123,6 +123,7 @@ namespace userio {
 
         int k = (int) min(line.find_first_of(" +-.,0123456789"), line.length());
         command = line.substr(min(k, 4));
+        while (command.size() < 4) command.append(" ");
         lc2uc(command);
 
         if (k < 1) k = 5;

@@ -16,9 +16,9 @@ typedef vector<bool> bvec;
 
 namespace userio {
 
-    void aski(const string &prompt, ivec &iinput);
-    void askr(const string &prompt, vec &rinput);
-    void askl(const string &prompt, bvec &linput);
+    void aski(const string &prompt, int &iinput);
+    void askr(const string &prompt, double &rinput);
+    void askl(const string &prompt, bool &linput);
     void asks(const string &prompt, string &input);
     void askc(const string &prompt, string &command, string &cargs);
 

@@ -1,6 +1,6 @@
-#include <iostream>
+#include "xrotor.h"
 
 int main() {
-    std::cout << "Hello World!" << std::endl;
+    xrotor::xrotor();
     return 0;
 }

@@ -52,6 +52,10 @@ Matrix& Matrix::zeros() {
     }
     return *this;
 }
+
+const  int* Matrix::size() {
+    return new  int[2] {m_, n_};
+}
 // Matrix DEFINITION END
 
 // Cube DEFINITION START

@@ -11,5 +11,7 @@ add_executable(xrotor_nographics_c main.cpp
         src/spline.cpp
         src/userio.cpp
         src/vortex.cpp
-        src/xaero.cpp src/xio.cpp)
+        src/xaero.cpp
+        # src/xio.cpp
+        src/xutils.cpp)
 #target_link_libraries(xrotor_nographics_c ${ARMADILLO_LIBRARIES})

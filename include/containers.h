@@ -17,6 +17,8 @@ public:
 
     Matrix& zeros();
 
+    const  int* size();
+
 private:
      int m_, n_;
     double* data_;

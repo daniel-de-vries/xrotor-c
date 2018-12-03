@@ -18,10 +18,10 @@ namespace xaero {
 
     void getclcdcm(common::context &context,
                    int is, double alf, double w, double rey,
-                   double clfit, double cl_alf, double cl_w,
-                   double clmax, double clmin, double dcl_stall, double stallf,
-                   double cdrag, double cd_alf, double cd_w, double cd_rey,
-                   double cmom, double cm_al, double cm_w);
+                   double &clift, double &cl_alf, double &cl_w,
+                   double &clmax, double &clmin, double &dcl_stall, bool &stallf,
+                   double &cdrag, double &cd_alf, double &cd_w, double &cd_rey,
+                   double &cmom, double &cm_al, double &cm_w);
 
     void getalf(common::context &context,
                 int is, const double &clift, const double &w,

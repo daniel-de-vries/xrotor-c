@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
+#include <stdio.h>
 #include "spline.h"
 #include "userio.h"
 #include "xaero.h"
@@ -19,6 +20,10 @@
 
 namespace xrotor {
 
+    /**
+     * Interactive Design and Analysis Program
+     *     for Free-tip and Ducted Rotors
+     */
     void xrotor() {
         common::context context;
         context.version = 7.55;
@@ -64,6 +69,11 @@ namespace xrotor {
         }
     }
 
+    /**
+     * Initialize everything.
+     *
+     * @param context
+     */
     void init(common::context& context) {
         context.greek = false;
 
@@ -127,8 +137,12 @@ namespace xrotor {
         for (int &i : context.iaero) i = 0;
     }
 
+    /**
+     * Hard-wired start-up defaults
+     *
+     * @param context
+     */
     void setdef(common::context& context) {
-        // hard-wired start-up defaults
         context.rake = 0.0;
 
         context.vel = 1.0;
@@ -159,7 +173,23 @@ namespace xrotor {
 
         context.lvnorm = true;          // flight speed used for normalization
     }
-    
+
+    /**
+     * Calculate atmospheric properties at a given altitude.
+     *
+     * Returns speed of sound (VSO) in m/s, density (RHO)
+     * in kg/m^3, and dynamic viscosity (RMU) in kg/m-s
+     * of standard atmosphere at specified altitude ALSPEC
+     * (in kilometers).  If ALSPEC=-1, water properties
+     * at 15 Celsius are returned.
+     *
+     * Reference:  "U.S. Standard Atmosphere", NOAA.
+     *
+     * @param alspec        altitude in km
+     * @param vsoalt        speed of sound in m/s
+     * @param rhoalt        density in kg/m^3
+     * @param rmualt        dynamic viscosity in kg/(m*s)
+     */
     void atmo(double alspec, double &vsoalt, double &rhoalt, double &rmualt) {
         const int n = 44;
         const bool first = true;
@@ -236,6 +266,11 @@ namespace xrotor {
         cout << " Air temperature (K) : " << t << endl;
     }
 
+    /**
+     * Re-initialize advance ratio and gammas.
+     *
+     * @param context
+     */
     void reinit(common::context &context) {
         // estimate reasonable advance ratio to start iterative routines
         int is = context.ii / 2 + 1;
@@ -264,6 +299,11 @@ namespace xrotor {
         if (context.conv) output(context, cout);
     }
 
+    /**
+     * Fill stretched radial coordinate array X (and XV).
+     *
+     * @param context
+     */
     void setx(common::context &context) {
         context.dt = 0.5 * common::pi / float(context.ii);
         double xm = context.xi0;
@@ -295,6 +335,12 @@ namespace xrotor {
         context.xv[context.ii + 1] = context.xitip;
     }
 
+    /**
+     * Open a file for writing.
+     *
+     * @param ofs       output file stream
+     * @param fname     name of the file
+     */
     void opfile(ofstream &ofs, string &fname) {
         // get filename if it hasn't been already specified
         if (fname[0] == ' ') userio::asks("Enter output filename", fname);
@@ -341,12 +387,18 @@ namespace xrotor {
         }
     }
 
-    void output(common::context &context, ostream &os) {
+    /**
+     * Dump everything to the FILE object identifying an output stream.
+     *
+     * @param context
+     * @param pFile     pointer to FILE object identifying output stream
+     */
+    void output(common::context &context, FILE* pFile) {
         int iadd = 1;
-        if (&os == &cout) iadd = context.incr;
+        if (pFile == stdout) iadd = context.incr;
 
-        os << endl << string(75, '=') << endl;
-        if (!context.conv) cout << "********** NOT CONVERGED **********'" << endl;
+        fprintf(pFile, "%75s\n", string(75, '=').c_str());
+        if (!context.conv) fprintf(pFile, "********** NOT CONVERGED **********\n");
 
         bool lheli = false;
         double fac1 = context.rho * pow(context.vel, 2) * pow(context.rad, 2);
@@ -401,7 +453,131 @@ namespace xrotor {
         }
 
         if (context.duct) {
+            switch (context.iwtyp) {
+                case 1:
+                case 3: fprintf(pFile, " Ducted Graded Mom. Formulation Solution:  ");
+                case 2: fprintf(pFile, " Ducted Potential Formulation Solution:  ");
+                default:;
+            }
+        } else {
+            switch (context.iwtyp) {
+                case 1: fprintf(pFile, " Free Tip Graded Mom. Formulation Solution:  ");
+                case 2: fprintf(pFile, " Free Tip Potential Formulation Solution:  ");
+                case 3: fprintf(pFile, " Free Tip Vortex Wake Formulation Solution:  ");
+                default:;
+            }
+        }
+        fprintf(pFile, "%32s\n", context.name.c_str());
 
+        if (context.nadd > 1) {
+            fprintf(pFile, " (External slipstream present)%19sWake adv. ratio:%11.5f\n", "", context.adw);
+        } else if (context.duct) {
+            fprintf(pFile, " Vdisk/Vslip:%11.5f%25sWake adv. ratio:%11.5f\n", context.urduct, "", context.adw);
+        } else {
+            fprintf(pFile, "%50sWake adv. ratio:%11.5f\n", "", context.adw);
+        }
+
+        if (context.adw < 0.5*context.adv)
+            fprintf(pFile, " Reverse far-slipstream velocity implied. Interpret results carefully !");
+
+        fprintf(pFile, " no. blades :%3i   %9sradius(m)  :%9.4F %4sadv. ratio: %11.5F\n", context.nblds, "", context.rad, "", context.adv);
+        fprintf(pFile, " thrust(N)  :%11.3G%4spower(W)   :%11.3G%3storque(N-m):%11.3G\n", tdim, "", pdim, "", qdim);
+        fprintf(pFile, " Efficiency :%8.3F %6sspeed(m/s) :%9.3F %4srpm        :%11.3F\n", efftot, "", context.vel, "", rpm);
+        fprintf(pFile, " Eff induced:%8.4F %6sEff ideal  :%9.4F %4sTcoef      :%11.4F\n", effind, "", eideal, "", tc);
+        fprintf(pFile, " Tnacel(N)  :%11.4F%4shub rad.(m):%9.4F %4sdisp. rad. :%10.4F\n", tnacel, "", context.xi0 * context.rad, "", context.xw0 * context.rad);
+        fprintf(pFile, " Tvisc(N)   :%11.4F%4sPvisc(W)   :%11.3G\n",                      tvdim, "", pvdim);
+        fprintf(pFile, " rho(kg/m3) :%10.5F%5sVsound(m/s):%9.3F %4smu(kg/m-s) :%11.4E\n", context.rho, "", context.vso, "", context.rmu);
+        fprintf(pFile, " %75s\n", string(75, '-').c_str());
+
+        // low advance ratio (helicopter?) data
+        if (lheli) {
+            fprintf(pFile, "Helicopter: Sigma:%11.5F  CTh/s:%11.5F  FOM:%11.5F", sigma, ctos, fom);
+        } else {
+            fprintf(pFile, " Sigma:%11.5F", sigma);
+        }
+
+        // coefficients based on rotational speed
+        fprintf(pFile, "%12s    Ct:%11.5F     Cp:%11.5F    J:%11.5F", "", ct, cp, context.adv * common::pi);
+        // coefficients based on forward speed
+        fprintf(pFile, "%12s    Tc:%11.5F     Pc:%11.5F  adv:%11.5F", "", tc, pc, context.adv);
+
+        if (context.terse) return;
+
+        // find maximum RE on blade
+        double remax = 0.0;
+        for (int i = 0; i < context.ii; i++) {
+            remax = max(context.re[i], remax);
+        }
+        double reexp = 1.0;
+        if (remax >= 1.0e6) {
+            reexp = 6.0;
+        } else if (remax >= 1.0e3) {
+            reexp = 3.0;
+        }
+
+        if (reexp == 1.0) {
+            fprintf(pFile, "\n  i  r/R    c/R  beta(deg)   CL      Cd    RE    Mach   effi  effp  na.u/U");
+        } else {
+            fprintf(pFile, "\n  i  r/R   c/R  beta(deg)  CL     Cd    REx10^%1i Mach   effi  effp  na.u/U", (int)reexp);
+        }
+
+        double wa, wt;
+        double vw, vaw, utotw, cw, sw, effi;
+        double utot, vt, vt_adw, va, va_adw, vd, vd_adw, ci, ci_adv, ci_vt,
+               si, si_va, w, w_adv, w_vt, w_va, phi, p_adv, p_vt, p_va;
+        double mach, bdeg, xre;
+        char schar[1] = {' '};
+        for (int i = 0; i < context.ii; i += iadd) {
+            // use equivalent prop to define local efficiency
+            uvadd(context, context.xi[i], wa, wt);
+            vw = context.vwak[i];
+            vaw = vw * context.xw[i] / context.adw;
+            // Freestream velocity component on equiv prop
+            utotw = context.urduct;
+            cw = context.xi[i] / context.adv - wt - vw;
+            sw = utotw                       + wa - vaw;
+            effi = (cw / sw)                 * context.adv / context.xw[i];
+
+            // use real prop to define Mach number
+            xoper::cscalc(i, utot, wa, wt,
+                          vt, vt_adw,
+                          va, va_adw,
+                          vd, vd_adw,
+                          ci, ci_adv, ci_vt,
+                          si, si_va,
+                          w, w_adv, w_vt, w_va,
+                          phi, p_adv, p_vt, p_va);
+
+            mach = w * context.vel / context.vso;
+
+            bdeg = context.beta[i] * 180. / common::pi;
+            xre = context.re[i] / (pow(10., reexp));
+
+            schar[0] = ' ';
+            if (context.stall[i]) schar[0] = 'S';
+
+            fprintf(pFile, " %2i%6.3F%7.4F%7.2F%7.3F %1s%7.4F %6.2F %6.3F %6.3F%6.3F%8.3F\n",
+                i, context.xi[i], context.ch[i], bdeg, context.cl[i], schar, context.cd[i], xre, mach,
+                effi, context.effp[i], context.ubody[i]);
+        }
+    }
+
+    /**
+     * @param context
+     * @param xiw
+     * @param wa
+     * @param wt
+     */
+    void uvadd(common::context& context, double xiw, double& wa, double& wt) {
+        wa = 0;
+        wt = 0;
+
+        if (context.nadd <= 1) return;
+
+        double rdim = xiw * context.rad;
+        if (rdim >= context.radd[0] and rdim <= context.radd[context.nadd-1]) {
+            wa = spline::seval(rdim, context.uadd, context.uaddr, context.radd, context.nadd) / context.vel;
+            wt = spline::seval(rdim, context.vadd, context.vaddr, context.radd, context.nadd) / context.vel;
         }
     }
 }

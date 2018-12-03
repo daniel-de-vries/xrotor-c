@@ -25,13 +25,15 @@ namespace common {
 
     struct context {
         bool conv, greek, terse, vrtx, fast, free, duct, lstruc,
-             dest, desp, stall, ldesini, loprint,
+             dest, desp, ldesini, loprint,
              lrotor, lvnorm, lpwrvar, legend;
 
         double mcrit;
 
         string savil, fname;
         string name;
+
+        bool stall[ix];
 
         double rho, rmu, vso, vel, rad, gee, alt;
 
@@ -51,9 +53,17 @@ namespace common {
                xv[ix];
 
         int nadd;
-
-        double ubody[ix];
+        double radd[ix],
+               uadd[ix], vadd[ix],
+               uaddr[ix], vaddr[ix],
+               ubody[ix], vbody[ix];
         double urduct;
+
+        double cl[ix], cd[ix], cm[ix],
+               re[ix], effp[ix], gam[ix],
+               dtii[ix], dpii[ix],
+               dtvi[ix], dpvi[ix],
+               dtwi[ix], dpwi[ix];
 
         int naero;
         double xiaero[nax];
@@ -73,7 +83,12 @@ namespace common {
 
         int npwrvar;
 
+        double vwak[ix], vw_gam[ix], vw_adw[ix], vw_adv[ix],
+               vind[3][ix], vind_gam[3][ix][ix], vind_adw[3][ix];
+
         double xw0;
+        double xw[ix], xw_gam[ix][ix], xw_adw[ix][ix], xw_adv[ix][ix],
+               dwx[ix], dxw_gam[ix][ix], dxw_adw[ix][ix], dxw_adv[ix][ix];
 
     };
 }

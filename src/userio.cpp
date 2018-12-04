@@ -58,7 +58,7 @@ namespace userio {
      *
      * @note If an empty input is given, iinput will be unchanged.
      */
-    void aski(const string &prompt, int &iinput) {
+    void ASKI(const string &prompt, int &iinput) {
         _ask_helper(prompt, "i", iinput, 999);
     }
 
@@ -70,7 +70,7 @@ namespace userio {
      *
      * @note If an empty input is given, rrinput will be unchanged.
      */
-    void askr(const string &prompt, double &rinput) {
+    void ASKR(const string &prompt, double &rinput) {
         _ask_helper(prompt, "r", rinput, 999.);
     }
 
@@ -82,7 +82,7 @@ namespace userio {
      *
      * @note Prompt will be repeated until a valid input is given.
      */
-    void askl(const string &prompt, bool &linput) {
+    void ASKL(const string &prompt, bool &linput) {
         char response = 0;
         while (response != 'Y' and response != 'N') {
             string str;
@@ -98,7 +98,7 @@ namespace userio {
      * @param prompt    prompt to present to the user.
      * @param input     string returned by the user
      */
-    void asks(const string &prompt, string &input) {
+    void ASKS(const string &prompt, string &input) {
         _ask_helper(prompt, "s");
         getline(cin, input);
     }
@@ -112,7 +112,7 @@ namespace userio {
      *
      * @note command will be converted to upper-case.
      */
-    void askc(const string &prompt, string &command, string &cargs) {
+    void ASKC(const string &prompt, string &command, string &cargs) {
         _ask_helper(prompt, "c");
 
         string line;
@@ -124,7 +124,7 @@ namespace userio {
         int k = (int) min(line.find_first_of(" +-.,0123456789"), line.length());
         command = line.substr(min(k, 4));
         while (command.size() < 4) command.append(" ");
-        lc2uc(command);
+        LC2UC(command);
 
         if (k < 1) k = 5;
         cargs = line.substr(k);
@@ -137,7 +137,7 @@ namespace userio {
      *
      * @param input     string to convert
      */
-    void lc2uc(string &input) {
+    void LC2UC(string &input) {
         for (auto &c : input) {
             c = (unsigned char)toupper(c);
         }
@@ -173,8 +173,8 @@ namespace userio {
      * @param ivar      array of integers
      * @param error     indicates if something went wrong while trying to read the input
      */
-    void readi(int n, ivec &ivar, bool &error) {
-        _read_helper<int>(n, ivar, error, &getint);
+    void READI(int n, ivec &ivar, bool &error) {
+        _read_helper<int>(n, ivar, error, &GETINT);
     }
 
     /**
@@ -184,8 +184,8 @@ namespace userio {
      * @param var       array of doubles
      * @param error     indicates if something went wrong while trying to read the input
      */
-    void readr(int n, vec &var, bool &error) {
-        _read_helper<double>(n, var, error, &getflt);
+    void READR(int n, vec &var, bool &error) {
+        _read_helper<double>(n, var, error, &GETFLT);
     }
 
     /**
@@ -242,7 +242,7 @@ namespace userio {
      * @param n         number of integers
      * @param error     indicates whether something went wrong
      */
-    void getint(string &input, ivec &a, int &n, bool &error) {
+    void GETINT(string &input, ivec &a, int &n, bool &error) {
         _get_helper(input, a, n, error, [](string s) -> int { return stoi(s); });
     }
 
@@ -261,7 +261,7 @@ namespace userio {
      * @param n         number of doubles
      * @param error     indicates whether something went wrong
      */
-    void getflt(string &input, vec &a, int &n, bool &error) {
+    void GETFLT(string &input, vec &a, int &n, bool &error) {
         _get_helper(input, a, n, error, [](string s) -> double { return stod(s); });
     }
 }

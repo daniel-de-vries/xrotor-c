@@ -7,15 +7,15 @@
 
 namespace spline {
 
-    void spline(const double x[], double xs[], const double s[], int n);
-    void splind(const double x[], double xs[], const double s[], int n, double xs1, double xs2);
-    void splina(const double x[], double xs[], const double s[], int n);
-    void trisol(double a[], const double b[], double c[], double d[], int kk);
+    void SPLINE(const double *x, double *xs, const double *s, int n);
+    void SPLIND(const double *x, double *xs, const double *s, int n, double xs1, double xs2);
+    void SPLINA(const double *x, double *xs, const double *s, int n);
+    void TRISOL(double *a, const double *b, double *c, double *d, int kk);
 
-    double seval(double ss, const double x[], double xs[], const double s[], int n);
-    double deval(double ss, const double x[], double xs[], const double s[], int n);
+    double SEVAL(double ss, const double *x, double *xs, const double *s, int n);
+    double DEVAL(double ss, const double *x, double *xs, const double *s, int n);
 
-    void segspl(const double x[], double xs[], const double s[], int n);
+    void SEGSPL(const double *x, double *xs, const double *s, int n);
 }
 
 #endif // XROTOR_NOGRAPHICS_CPP_SPLINE_H

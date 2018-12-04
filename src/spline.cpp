@@ -19,8 +19,8 @@ namespace spline {
      * @param xs    d(x)/d(s) array (calculated)
      * @param n     number of points
      */
-    void spline(const double x[], double xs[], const double s[], int n) {
-        return spline::splind(x, xs, s, n, 999.f, 999.f);
+    void SPLINE(const double *x, double *xs, const double *s, int n) {
+        return spline::SPLIND(x, xs, s, n, 999.f, 999.f);
     }
 
     /**
@@ -39,7 +39,7 @@ namespace spline {
      *                  if ==  999.0, use zero 2nd derivative
      *                  if == -999.0, use zero 2rd derivative
      */
-    void splind(const double x[], double xs[], const double s[], int n, double xs1, double xs2) {
+    void SPLIND(const double *x, double *xs, const double *s, int n, double xs1, double xs2) {
         if (n == 1) {
             xs[0] = .0f;
             return;
@@ -94,7 +94,7 @@ namespace spline {
         }
 
         // solve for derivative array xs
-        return spline::trisol(a, b, c, xs, n);
+        return spline::TRISOL(a, b, c, xs, n);
     }
 
     /**
@@ -114,7 +114,7 @@ namespace spline {
      * @note All three arrays should be conformant.
      *
      */
-    void splina(const double x[], double xs[], const double s[], int n) {
+    void SPLINA(const double *x, double *xs, const double *s, int n) {
         if (n == 1) {
             xs[0] = 0.f;
             return;
@@ -159,7 +159,7 @@ namespace spline {
      * @param a, b, c, d    arrays
      * @param n     number of points
      */
-    void trisol(double a[], const double b[], double c[], double d[], int kk) {
+    void TRISOL(double *a, const double *b, double *c, double *d, int kk) {
         for (int k = 1; k < kk-1; k++) {
             c[k-1] /= a[k-1];
             d[k-1] /= a[k-1];
@@ -211,7 +211,7 @@ namespace spline {
      * @param n     number of points
      * @return      x(ss)
      */
-    double seval(double ss, const double x[], double xs[], const double s[], int n) {
+    double SEVAL(double ss, const double *x, double *xs, const double *s, int n) {
         if (n == 1)
             return xs[0];
 
@@ -233,7 +233,7 @@ namespace spline {
      * @param n     number of points
      * @return      [d(x)/d(s)](ss)
      */
-    double deval(double ss, const double x[], double xs[], const double s[], int n) {
+    double DEVAL(double ss, const double *x, double *xs, const double *s, int n) {
         if (n == 1)
             return xs[0];
 
@@ -255,24 +255,24 @@ namespace spline {
      * @param xs    d(x)/d(s) array (calculated)
      * @param n     number of points
      */
-    void segspl(const double x[], double xs[], const double s[], int n) {
+    void SEGSPL(const double *x, double *xs, const double *s, int n) {
         if (n == 1) {
             xs[0] = 0.f;
             return;
         }
 
-        if (s[0]   == s[1]  ) throw std::runtime_error("segspl:  First input point duplicated");
-        if (s[n-1] == s[n-2]) throw std::runtime_error("segspl:  Last  input point duplicated");
+        if (s[0]   == s[1]  ) throw std::runtime_error("SEGSPL:  First input point duplicated");
+        if (s[n-1] == s[n-2]) throw std::runtime_error("SEGSPL:  Last  input point duplicated");
 
         int iseg0 = 0;
         for (int iseg = 1; iseg < n-3; iseg++) {
             if (s[iseg] == s[iseg+1]) {
-                splind(x + iseg0, xs + iseg0, s + iseg0, iseg - iseg0 + 1, -999.f, -999.f);
+                SPLIND(x + iseg0, xs + iseg0, s + iseg0, iseg - iseg0 + 1, -999.f, -999.f);
                 iseg0 = iseg + 1;
             }
         }
 
-        spline::splind(x + iseg0, xs + iseg0, s + iseg0, n - iseg0 + 1, -999.f, -999.f);
+        spline::SPLIND(x + iseg0, xs + iseg0, s + iseg0, n - iseg0 + 1, -999.f, -999.f);
     }
 }
 

@@ -23,7 +23,7 @@ namespace xaero {
      *
      * @param context
      */
-    void setiaero(common::context &context) {
+    void SETIAERO(common::context &context) {
         context.IAERO.resize(context.II);
 
         int i, n;
@@ -56,7 +56,7 @@ namespace xaero {
      * @param reref         reference Reynold's number
      * @param rexp          Reynold's number exponent (Cd ~ Re^rexp)
      */
-    void putaero(common::context &context,
+    void PUTAERO(common::context &context,
                  int n, double xisect, double a0, double clmax, double clmin,
                  double dclda, double dclda_stall, double dcl_stall,
                  double cdmin, double clcdmin, double dcddcl2,
@@ -103,7 +103,7 @@ namespace xaero {
      * @param cm_al                     d(C_m)/d(alpha)
      * @param cm_w                      d(C_m)/d(w)
      */
-    void getclcdcm(common::context &context,
+    void GETCLCDCM(common::context &context,
                    int is, double alf, double w, double rey,
                    double &clift, double &cl_alf, double &cl_w,
                    double &clmax, double &clmin, double &dcl_stall, bool &stallf,
@@ -150,7 +150,7 @@ namespace xaero {
         double mcrit        = context.AERODATA[n][12];
         double xisect1      = context.XIAERO[n];
         // Get data for inner bounding aero section
-        clcdcm(context,
+        CLCDCM(context,
                alf, w, rey,
                clift, cl_alf, cl_w, stallf,
                cdrag, cd_alf, cd_w, cd_rey,
@@ -183,7 +183,7 @@ namespace xaero {
                     cdrag2, cd_alf2, cd_w2, cd_rey2,
                     cmom2, cm_al2, cm_w2;
             bool stallf2;
-            clcdcm(context,
+            CLCDCM(context,
                    alf, w, rey,
                    clift2, cl_alf2, cl_w2, stallf2,
                    cdrag2, cd_alf2, cd_w2, cd_rey2,
@@ -223,7 +223,7 @@ namespace xaero {
      * @param alf_w     d(alpha)/d(w)
      * @param stallf    true if stalled
      */
-    void getalf(common::context &context,
+    void GETALF(common::context &context,
                 int is, const double &clift, const double &w,
                 double &alf, double &alf_cl, double &alf_w, bool &stallf) {
         const int niter = 10;
@@ -238,7 +238,7 @@ namespace xaero {
         alf = a0;
         double cltemp, cl_alf, cl_w, clmax, clmin, dcl_stall, cdrag, cd_alf, cd_w, cd_rey, cmom, cm_al, cm_w, dalf;
         for (int iter = 0; iter < niter; iter++) {
-            getclcdcm(context,
+            GETCLCDCM(context,
                       is, alf, w, rey,
                       cltemp, cl_alf, cl_w,
                       clmax, clmin, dcl_stall, stallf,
@@ -276,7 +276,7 @@ namespace xaero {
      * #CM(alpha) function - presently CM is assumed constant,
      * varying only with Mach by Prandtl-Glauert scaling
      */
-    void clcdcm(common::context &context,
+    void CLCDCM(common::context &context,
                 const double &alf, const double &w, const double &rey,
                 double &clift, double &cl_alf, double &cl_w, bool &stallf,
                 double &cdrag, double &cd_alf, double &cd_w, double &cd_rey,

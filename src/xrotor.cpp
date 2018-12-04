@@ -49,7 +49,7 @@ namespace xrotor {
                 showHelp = false;
             }
 
-            userio::askc(" XROTOR", command, comarg);
+            userio::ASKC(" XROTOR", command, comarg);
 
             context.GREEK = true;
             if (command == "    ") continue;
@@ -58,9 +58,9 @@ namespace xrotor {
                 continue;
             }
             if (command == "QUIT") return;
-            if (command == "OPER") xoper::oper(context);
+            if (command == "OPER") xoper::OPER(context);
             if (command == "BEND") xbend::bend(context);
-            if (command == "LOAD") xio::load(context, comarg);
+            if (command == "LOAD") xio::LOAD(context, comarg);
             if (command == "NOIS") xnoise::noise(context);
             if (command == "DISP") output(context, cout);
             else if (context.GREEK) {
@@ -150,12 +150,12 @@ namespace xrotor {
         atmo(context.ALT, context.VSO, context.RHO, context.RMU); // sea level atmospheric conditions
 
         // install data into aero section #1
-        xaero::putaero(context,
-            1, 0, 0,                    // NAERO, xisect, a0
-            1.5, -0.5, 6.28, 0.1, 0.1,  // clmax, clmin, dclda, dclda_stall, dcl_stall
-            0.013, 0.5, 0.004,          // cdmin, cldmin, cdccdl2
-            -0.1, 0.8,                  // cmcon, mcrit
-            200000, -0.4);              // reref, rexp
+        xaero::PUTAERO(context,
+                       1, 0, 0,                    // NAERO, xisect, a0
+                       1.5, -0.5, 6.28, 0.1, 0.1,  // clmax, clmin, dclda, dclda_stall, dcl_stall
+                       0.013, 0.5, 0.004,          // cdmin, cldmin, cdccdl2
+                       -0.1, 0.8,                  // cmcon, mcrit
+                       200000, -0.4);              // reref, rexp
         for (int &i : context.IAERO) i = 1;
 
         context.xpitch = 0.3;           // x/c location of pitch axis
@@ -283,7 +283,7 @@ namespace xrotor {
         double adv0 = context.XI[is] * sin(ang) / cos(ang);
         double rpm0 = context.VEL / (context.RAD * adv0 * common::PI / 30.);
 
-        userio::askr("Enter initialization RPM?", rpm);
+        userio::ASKR("Enter initialization RPM?", rpm);
 
         context.ADV = context.VEL / (rpm * context.RAD * common::PI / 30.);
         context.ADV = max(0.1, context.ADV);
@@ -291,11 +291,11 @@ namespace xrotor {
 
         // Set the blade angle back to reference angle
         bool yes;
-        userio::askl("Restore blade angles to original?", yes);
+        userio::ASKL("Restore blade angles to original?", yes);
         if (yes) copy(context.BETA, context.BETA + context.II, context.BETA0);
 
         // calculate current operating point
-        xoper::aper(context, 4, 2, true);
+        xoper::APER(context, 4, 2, true);
         if (context.CONV) output(context, cout);
     }
 
@@ -343,7 +343,7 @@ namespace xrotor {
      */
     void opfile(ofstream &ofs, string &fname) {
         // get filename if it hasn'T been already specified
-        if (fname[0] == ' ') userio::asks("Enter output filename", fname);
+        if (fname[0] == ' ') userio::ASKS("Enter output filename", fname);
 
         // try to open the file
         ofs.open(fname, ofstream::in);
@@ -351,11 +351,11 @@ namespace xrotor {
             // file exists... ask how to proceed
             string command, comarg, valid;
             valid = "OoAaNn";
-            userio::askc("File " + fname + " exists. Overwrite / Append / New file ?", command, comarg);
+            userio::ASKC("File " + fname + " exists. Overwrite / Append / New file ?", command, comarg);
 
             if (valid.find(command[0]) == -1) {
                 //ask again if reply is invalid
-                userio::askc(" O / A / N ?", command, comarg);
+                userio::ASKC(" O / A / N ?", command, comarg);
 
                 if (valid.find(command[0]) == -1) {
                     // Still bad reply. Give up asking and just return
@@ -380,7 +380,7 @@ namespace xrotor {
 
             // new file... get filename from command argument, or ask if not supplied
             fname = comarg;
-            if (fname.empty() or fname.find_first_not_of(' ') == -1) userio::asks("Enter output filename", fname);
+            if (fname.empty() or fname.find_first_not_of(' ') == -1) userio::ASKS("Enter output filename", fname);
         } else {
             ofs.open(fname, ofstream::out | ofstream::trunc);
             if (!ofs.is_open()) cout << "Bad filename." << endl;
@@ -421,8 +421,8 @@ namespace xrotor {
         double tnacel = (context.TWAK - context.TINV) * fac1;
 
         // blade solidity
-        spline::spline(context.CH, context.W1, context.XI, context.II);
-        double ch34 = spline::seval(0.75, context.CH, context.W1, context.XI, context.II);
+        spline::SPLINE(context.CH, context.W1, context.XI, context.II);
+        double ch34 = spline::SEVAL(0.75, context.CH, context.W1, context.XI, context.II);
         double sigma = float(context.NBLDS) * ch34 / common::PI;
 
         // standard coefficients based on forward speed
@@ -444,7 +444,7 @@ namespace xrotor {
         double cth, cph, ctos, fom;
         // define low advance ratio (helicopter?) related data
         if (context.ADV < 0.1) {
-            spline::spline(context.CH, context.W1, context.XI, context.II);
+            spline::SPLINE(context.CH, context.W1, context.XI, context.II);
             cth = ct / 7.7516;
             cph = cp / 24.352;
             ctos = cth / sigma;
@@ -576,8 +576,8 @@ namespace xrotor {
 
         double rdim = xiw * context.RAD;
         if (rdim >= context.RADD[0] and rdim <= context.RADD[context.NADD-1]) {
-            wa = spline::seval(rdim, context.UADD, context.UADDR, context.RADD, context.NADD) / context.VEL;
-            wt = spline::seval(rdim, context.VADD, context.VADDR, context.RADD, context.NADD) / context.VEL;
+            wa = spline::SEVAL(rdim, context.UADD, context.UADDR, context.RADD, context.NADD) / context.VEL;
+            wt = spline::SEVAL(rdim, context.VADD, context.VADDR, context.RADD, context.NADD) / context.VEL;
         }
     }
 }

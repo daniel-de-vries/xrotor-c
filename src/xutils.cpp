@@ -21,7 +21,7 @@ namespace xutils {
      * @param r     right hand sides(s) (replaced by the solution vector(s))
      */
     template <int nsiz, int nrhs>
-    void gauss(int nn, double z[nsiz][nsiz], double r[nsiz][nrhs]) {
+    void GAUSS(int nn, double z[nsiz][nsiz], double r[nsiz][nrhs]) {
         int np, np1, nx, n, l, k;
         double pivot, temp, ztmp;
         for (np = 0; np < nn - 1; np++) {

@@ -15,19 +15,19 @@ typedef vector<double> vec;
 
 namespace userio {
 
-    void aski(const string &prompt, int &iinput);
-    void askr(const string &prompt, double &rinput);
-    void askl(const string &prompt, bool &linput);
-    void asks(const string &prompt, string &input);
-    void askc(const string &prompt, string &command, string &cargs);
+    void ASKI(const string &prompt, int &iinput);
+    void ASKR(const string &prompt, double &rinput);
+    void ASKL(const string &prompt, bool &linput);
+    void ASKS(const string &prompt, string &input);
+    void ASKC(const string &prompt, string &command, string &cargs);
 
-    void lc2uc(string &input);
+    void LC2UC(string &input);
 
-    void readi(int n, ivec &ivar, bool &error);
-    void readr(int n, vec &var, bool &error);
+    void READI(int n, ivec &ivar, bool &error);
+    void READR(int n, vec &var, bool &error);
 
-    void getint(string &input, ivec &a, int &n, bool &error);
-    void getflt(string &input, vec &a, int &n, bool &error);
+    void GETINT(string &input, ivec &a, int &n, bool &error);
+    void GETFLT(string &input, vec &a, int &n, bool &error);
 }
 
 #endif //XROTOR_NOGRAPHICS_CPP_USERIO_H

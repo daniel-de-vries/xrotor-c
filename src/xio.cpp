@@ -13,11 +13,11 @@
 
 namespace xio {
 
-    void load(common::context &context, string fname) {
+    void LOAD(common::context &context, string fname) {
         context.GREEK = false;
 
         if (fname.empty()) {
-            userio::asks("Enter filename^", context.FNAME);
+            userio::ASKS("Enter filename^", context.FNAME);
         } else {
             context.FNAME = fname;
         }
@@ -26,7 +26,7 @@ namespace xio {
         string line;
 
         // File version
-        rdline(ifs, line);
+        RDLINE(ifs, line);
         cout << line.substr(16, 21) << endl;
 
         const char* d4 = "%lf %lf %lf %lf";
@@ -35,12 +35,12 @@ namespace xio {
         const char* d1 = "%lf";
 
         // Case title
-        rdline(ifs, context.NAME);
+        RDLINE(ifs, context.NAME);
 
-        if (!read(ifs, line, d4, 4, &context.RHO, &context.VSO, &context.RMU, &context.ALT) or
-            !read(ifs, line, d4, 4, &context.RAD, &context.VEL, &context.ADV, &context.RAKE) or
-            !read(ifs, line, d2, 2, &context.XI0, &context.XW0) or
-            !read(ifs, line, "%u", 1, &context.NAERO)) {
+        if (!READ(ifs, line, d4, 4, &context.RHO, &context.VSO, &context.RMU, &context.ALT) or
+            !READ(ifs, line, d4, 4, &context.RAD, &context.VEL, &context.ADV, &context.RAKE) or
+            !READ(ifs, line, d2, 2, &context.XI0, &context.XW0) or
+            !READ(ifs, line, "%u", 1, &context.NAERO)) {
             // goto 210
         }
 
@@ -51,22 +51,22 @@ namespace xio {
                reref, rexp,
                a0;
         for (unsigned n = 0; n < context.NAERO; n++) {
-            if (!read(ifs, line, d1, 1, &xisect) or
-                !read(ifs, line, d4, 4, &a0deg, &dclda, &clmax, &clmin) or
-                !read(ifs, line, d4, 3, &dclda_stall, &dcl_stall, &cmcon, &mcrit) or
-                !read(ifs, line, d3, 3, &cdmin, &cldmin, &dcddcl2) or
-                !read(ifs, line, d2, 2, &reref, &rexp)) {
+            if (!READ(ifs, line, d1, 1, &xisect) or
+                !READ(ifs, line, d4, 4, &a0deg, &dclda, &clmax, &clmin) or
+                !READ(ifs, line, d4, 3, &dclda_stall, &dcl_stall, &cmcon, &mcrit) or
+                !READ(ifs, line, d3, 3, &cdmin, &cldmin, &dcddcl2) or
+                !READ(ifs, line, d2, 2, &reref, &rexp)) {
                 // goto 210
             } else {
                 a0 = a0deg * common::PI / 180.;
-                xaero::putaero(context, n, xisect, a0, clmax, clmin,
+                xaero::PUTAERO(context, n, xisect, a0, clmax, clmin,
                                dclda, dclda_stall, dcl_stall,
                                cdmin, cldmin, dcddcl2, cmcon, mcrit, reref, rexp);
             }
         }
 
         char free, duct;
-        if (!read(ifs, line, "%c %c %*c", 3, &free, &duct)) {
+        if (!READ(ifs, line, "%c %c %*c", 3, &free, &duct)) {
             // goto 210
         } else {
             context.FREE = (free == 'T' or free == 't');
@@ -81,12 +81,12 @@ namespace xio {
         cout << endl;
 
         unsigned iix;
-        if (!read(ifs, line, "%u %u", 2, &iix, context.NBLDS)) {
+        if (!READ(ifs, line, "%u %u", 2, &iix, context.NBLDS)) {
             // goto 210
         } else {
             double betadeg;
             for (unsigned i = 0; i < iix; i++) {
-                if (!read(ifs, line, d4, 4, &context.XI[i], &context.CH[i], &betadeg, &context.UBODY[i])) {
+                if (!READ(ifs, line, d4, 4, &context.XI[i], &context.CH[i], &betadeg, &context.UBODY[i])) {
                     // goto 210
                 } else {
                     context.BETA[i] = betadeg * common::PI / 180.;
@@ -108,9 +108,9 @@ namespace xio {
 
         // spline blade geometry to "old" radial locations
         vec w1(context.XI), w2(context.CH), w3(iix), w4(context.BETA), w5(iix), w6(context.UBODY), w7(iix);
-        spline::spline(w2, w3, w1);
-        spline::spline(w4, w5, w1);
-        spline::spline(w6, w7, w1);
+        spline::SPLINE(w2, w3, w1);
+        spline::SPLINE(w4, w5, w1);
+        spline::SPLINE(w6, w7, w1);
 
         // set radial stations for built-in distribution scheme
         // TODO: call xrotor::setx()
@@ -118,20 +118,20 @@ namespace xio {
 
         // interpolate read-in geometry to generated radial stations
         for (unsigned i = 0; i < context.II; i++) {
-            context.CH[i]       = spline::seval(context.XI[i], w2, w3, w1);
-            context.BETA[i]     = spline::seval(context.XI[i], w4, w5, w1);
-            context.UBODY[i]    = spline::seval(context.XI[i], w6, w7, w1);
+            context.CH[i]       = spline::SEVAL(context.XI[i], w2, w3, w1);
+            context.BETA[i]     = spline::SEVAL(context.XI[i], w4, w5, w1);
+            context.UBODY[i]    = spline::SEVAL(context.XI[i], w6, w7, w1);
             context.BETA0[i]    = context.BETA[i];
         }
         context.IINF = context.II + context.II / 2;
 
-        xaero::setiaero(context);
+        xaero::SETIAERO(context);
 
         // XROTOR continues to calculate the operating point here
         // We skip this, since we want to use OPER to calculate an off-design operating point
     }
 
-    void rdline(ifstream &ifs, string &line) {
+    void RDLINE(ifstream &ifs, string &line) {
         while (line.find("!#") == string::npos || line.find_first_not_of(" \n") == string::npos) {
             ifs >> line;
             if (ifs.eof()) {
@@ -142,8 +142,8 @@ namespace xio {
     }
 
 
-    bool read(ifstream &ifs, string &line, const char *fmt, int n, ...) {
-        rdline(ifs, line);
+    bool READ(ifstream &ifs, string &line, const char *fmt, int n, ...) {
+        RDLINE(ifs, line);
         va_list args;
         va_start(args, n);
         bool error = (sscanf(line.c_str(), fmt, args) == n);

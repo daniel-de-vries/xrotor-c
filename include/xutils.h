@@ -7,7 +7,7 @@
 
 namespace xutils {
     template <int nsiz, int nrhs>
-    void gauss(int nn, double z[nsiz][nsiz], double r[nsiz][nrhs]);
+    void GAUSS(int nn, double z[nsiz][nsiz], double r[nsiz][nrhs]);
 }
 
 #endif //XROTOR_NOGRAPHICS_C_XUTILS_H

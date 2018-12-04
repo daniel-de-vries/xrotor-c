@@ -3,9 +3,10 @@
 //
 #include <cmath>        // std::sin, std::cos, std::tan, std::sqrt, M_PI
 #include <iostream>     // std::cout, std::endl
-#include "common.h"
-#include "vortex.h"
 using namespace std;
+
+#include <common.h>
+#include <vortex.h>
 using common::PI;
 
 namespace vortex {

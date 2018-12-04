@@ -5,7 +5,7 @@
 #ifndef XROTOR_NOGRAPHICS_CPP_XAERO_H
 #define XROTOR_NOGRAPHICS_CPP_XAERO_H
 
-#include "common.h"
+#include <common.h>
 
 namespace xaero {
     void SETIAERO(common::context &context);

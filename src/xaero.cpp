@@ -5,16 +5,9 @@
 #include <algorithm>    // std::max, std::min
 #include <cmath>        // std::abs, std::pow, std::sqrt, std::exp, std::log
 #include <iostream>     // std::cout, std::endl
-#include "xaero.h"
-using std::max;
-using std::min;
-using std::cout;
-using std::endl;
-using std::abs;
-using std::pow;
-using std::sqrt;
-using std::exp;
-using std::log;
+using namespace std;
+
+#include <xaero.h>
 
 namespace xaero {
 

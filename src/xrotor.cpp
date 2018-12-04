@@ -7,16 +7,16 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
-#include "spline.h"
-#include "userio.h"
-#include "xaero.h"
-#include "xbend.h"
-#include "xio.h"
-#include "xnoise.h"
-#include "xoper.h"
-#include "xrotor.h"
-using common::fprintf;
 
+#include <spline.h>
+#include <userio.h>
+#include <xaero.h>
+#include <xbend.h>
+#include <xio.h>
+#include <xnoise.h>
+#include <xoper.h>
+#include <xrotor.h>
+using common::fprintf;
 
 namespace xrotor {
 
@@ -87,8 +87,8 @@ namespace xrotor {
             context.URDUCT = 1.0;
         }
 
-        context.xinf = 3.0;                             // r/R at which BC at infinity is applied
-        context.nn = 32;                                // number of perturbation potential harmonics
+        context.XINF = 3.0;                             // r/R at which BC at infinity is applied
+        context.NN = 32;                                // number of perturbation potential harmonics
         context.IINF = context.II + context.II / 2;     // number of discrete potential harmonic stations
         context.CONV = false;                           // operating point solution existence flag
         context.LSTRUCT = false;                         // indicates if structural properties are available
@@ -97,10 +97,10 @@ namespace xrotor {
         context.SAVIL = " ";
 
         // acceleration due to gravity for scaling centrifugal blade tension (m/s^2)
-        context.gee = 9.81;
+        context.GEE = 9.81;
 
         // ADW factor (multiplies TINV/PINV in ADW calculation)
-        context.adwfctr = 1.0;
+        context.ADWFCTR = 1.0;
 
         if (context.II   > common::IX) throw runtime_error("Array overflow.  IX too small");
         if (context.IINF > common::JX) throw runtime_error("Array overflow.  JX too small");
@@ -115,25 +115,25 @@ namespace xrotor {
         context.NADD = 0;
 
         // number of defined cases
-        context.ncase = 0;
-        context.kcase = 0;
+        context.NCASE = 0;
+        context.KCASE = 0;
 
         // max number of iterations for design, analysis
-        context.niterd = 40;
+        context.NITERD = 40;
         context.NITERA = 40;
 
         // do not initialize rotor at each design cycle
-        context.ldesini = false;
+        context.LDESINI = false;
 
         // do initialize rotor at each design cycle
-        context.LOPRINT = true;
+        context.LOPRINI = true;
 
         // no engine load line to start
-        context.lpwrvar = false;
-        context.npwrvar = 0;
+        context.LPWRVAR = false;
+        context.NPWRVAR = 0;
         
         // no rotor yet
-        context.lrotor = false;
+        context.LROTOR = false;
         for (int &i : context.IAERO) i = 0;
     }
 
@@ -158,7 +158,7 @@ namespace xrotor {
                        200000, -0.4);              // reref, rexp
         for (int &i : context.IAERO) i = 1;
 
-        context.xpitch = 0.3;           // x/c location of pitch axis
+        context.XPITCH = 0.3;           // x/c location of pitch axis
 
         context.II = 30;                // number of radial stations
         context.INCR = 2;               // radial station increment for terminal OUTPUT
@@ -171,7 +171,7 @@ namespace xrotor {
 
         context.TERSE = false;          // TERSE-OUTPUT flag
 
-        context.lvnorm = true;          // flight speed used for normalization
+        context.LVNORM = true;          // flight speed used for normalization
     }
 
     /**

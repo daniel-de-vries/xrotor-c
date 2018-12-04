@@ -21,12 +21,14 @@ namespace common {
     const int NAX = 20;                 /**< max number of aerodynamic sections defined */
     const int NDX = 14;                 /**< number of aerodynamic parameters defined for each section */
 
-    const int JQ = IX + 5;
-    const int JX = (JQ * 3) / 2 + 1;
+    const int IQ = IX + 5;
+    const int JX = (IQ * 3) / 2 + 1;
 
     const double PI = 3.14159265358979323846264338327950288;
 
     struct context {
+        double Q[IQ][IQ];
+
         double MCRIT;
 
         bool CONV, GREEK, TERSE, VRTX, FAST, FREE, DUCT, LSTRUCT,
@@ -84,6 +86,9 @@ namespace common {
         double XW0, XWTIP,
                XW[IX],   xw_gam[IX][IX],  xw_adw[IX][IX],  xw_adv[IX][IX],
                dwx[IX], dxw_gam[IX][IX], dxw_adw[IX][IX], dxw_adv[IX][IX];
+
+        double DGAM[IX], RES[IQ], DADV, DADW, DBET, DEFF, DQ[IQ],
+               DGAMOLD[IX];
 
     };
 

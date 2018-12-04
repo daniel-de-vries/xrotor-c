@@ -5,9 +5,10 @@
 #ifndef XROTOR_NOGRAPHICS_C_XNOISE_H
 #define XROTOR_NOGRAPHICS_C_XNOISE_H
 
-#include "common.h"
 #include <iostream>
 using namespace std;
+
+#include <common.h>
 
 namespace xnoise {
     void noise(common::context& context) {

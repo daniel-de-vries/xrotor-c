@@ -3,9 +3,9 @@
 //
 #include <iostream>     // std::cout, std::cin
 #include <stdexcept>    // std::invalid_argument
-#include "userio.h"
-
 using namespace std;
+
+#include <userio.h>
 
 namespace userio {
 

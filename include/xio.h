@@ -7,8 +7,9 @@
 
 #include <fstream>      // std::ifstream
 #include <string>       // std::string
-#include "common.h"
 using namespace std;
+
+#include <common.h>
 
 namespace xio {
     void LOAD(common::context &context, string fname1);

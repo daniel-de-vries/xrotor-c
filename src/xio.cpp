@@ -6,10 +6,12 @@
 #include <cstdio>
 #include <cstdarg>
 
-#include "spline.h"
-#include "xaero.h"
-#include "userio.h"
-#include "xio.h"
+#include <spline.h>
+#include <userio.h>
+#include <xaero.h>
+#include <xio.h>
+#include <xrotor.h>
+#include <xrotor.h>
 
 namespace xio {
 
@@ -113,8 +115,8 @@ namespace xio {
         spline::SPLINE(w6, w7, w1);
 
         // set radial stations for built-in distribution scheme
-        // TODO: call xrotor::setx()
-        // TODO: call xoper::xwinit()
+        xrotor::SETX(context);
+        xoper::XWINIT();
 
         // interpolate read-in geometry to generated radial stations
         for (unsigned i = 0; i < context.II; i++) {

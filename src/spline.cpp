@@ -3,7 +3,8 @@
 //
 #include <algorithm>    // std::copy
 #include <stdexcept>    // std::runtime_error
-#include "spline.h"
+
+#include <spline.h>
 
 namespace spline {
 

@@ -5,9 +5,10 @@
 #ifndef XROTOR_NOGRAPHICS_C_XBEND_H
 #define XROTOR_NOGRAPHICS_C_XBEND_H
 
-#include "common.h"
 #include <iostream>
 using namespace std;
+
+#include <common.h>
 
 namespace xbend {
     void bend(common::context& context) {

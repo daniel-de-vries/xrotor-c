@@ -6,7 +6,8 @@
 #define XROTOR_NOGRAPHICS_C_XROTOR_H
 
 #include <fstream>
-#include "common.h"
+
+#include <common.h>
 
 using namespace std;
 

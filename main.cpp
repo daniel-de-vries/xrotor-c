@@ -1,6 +1,6 @@
-#include "xrotor.h"
+#include <xrotor.h>
 
 int main() {
-    xrotor::xrotor();
+    xrotor::XROTOR();
     return 0;
 }

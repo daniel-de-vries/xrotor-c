@@ -75,6 +75,13 @@ namespace common {
                TINV, PINV, TWAK, PWAK, TVIS, PVIS,
                GRESMX, FRESMX, ARESMX;
 
+        double TI_ADV,PI_ADV,TI_ADW,PI_ADW,
+               TW_ADV,PW_ADV,TW_ADW,PW_ADW,
+               TV_ADV,PV_ADV,TV_ADW,PV_ADW,TV_DBE,PV_DBE,
+               TI_GAM[IX],PI_GAM[IX],
+               TW_GAM[IX],PW_GAM[IX],
+               TV_GAM[IX],PV_GAM[IX];
+
         double W0[IWX], W1[IWX], W2[IWX], W3[IWX], W4[IWX],
                W5[IWX], W6[IWX], W7[IWX], W8[IWX], W9[IWX];
 

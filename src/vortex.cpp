@@ -26,7 +26,8 @@ namespace vortex {
      * @param vind_adw  sensitivity of swirl velocity to wake advance ratio (calculated)
      *                  @note must be of size (3, ii)
      */
-    void vrtxc0(int imax, int ii, int nblds, bool lduct, double rake,
+    template <int imax>
+    void vrtxc0(int ii, int nblds, bool lduct, double rake,
                 const double xi[imax], const double xv[imax], const double gam[imax], double adw,
                 double vind_gam[3][imax][imax], double vind_adw[3][imax]) {
         const int ntdim = 5000;

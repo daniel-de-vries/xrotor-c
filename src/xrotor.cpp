@@ -26,11 +26,11 @@ namespace xrotor {
      */
     void xrotor() {
         common::context context;
-        context.version = 7.55;
+        context.VERSION = 7.55;
 
         cout << endl;
         cout << " =========================" << endl;
-        cout << "    XROTOR Version " << context.version << endl;
+        cout << "    XROTOR Version " << context.VERSION << endl;
         cout << " =========================" << endl;
         cout << endl;
 
@@ -51,7 +51,7 @@ namespace xrotor {
 
             userio::askc(" XROTOR", command, comarg);
 
-            context.greek = true;
+            context.GREEK = true;
             if (command == "    ") continue;
             if (command == "?   ") {
                 showHelp = true;
@@ -63,7 +63,7 @@ namespace xrotor {
             if (command == "LOAD") xio::load(context, comarg);
             if (command == "NOIS") xnoise::noise(context);
             if (command == "DISP") output(context, cout);
-            else if (context.greek) {
+            else if (context.GREEK) {
                 cout << command << " command not recognized.  Type a \"?\" for list" << endl;
             }
         }
@@ -75,26 +75,26 @@ namespace xrotor {
      * @param context
      */
     void init(common::context& context) {
-        context.greek = false;
+        context.GREEK = false;
 
         // XROTOR defaults
-        context.urduct = 1.0;
+        context.URDUCT = 1.0;
 
         setdef(context);
 
-        if (context.duct) {
+        if (context.DUCT) {
             cout << "Aprop/Aexit initialized to 1.0" << endl;
-            context.urduct = 1.0;
+            context.URDUCT = 1.0;
         }
 
         context.xinf = 3.0;                             // r/R at which BC at infinity is applied
         context.nn = 32;                                // number of perturbation potential harmonics
-        context.iinf = context.ii + context.ii / 2;     // number of discrete potential harmonic stations
-        context.conv = false;                           // operating point solution existence flag
-        context.lstruc = false;                         // indicates if structural properties are available
+        context.IINF = context.II + context.II / 2;     // number of discrete potential harmonic stations
+        context.CONV = false;                           // operating point solution existence flag
+        context.LSTRUCT = false;                         // indicates if structural properties are available
 
-        context.name = " ";
-        context.savil = " ";
+        context.NAME = " ";
+        context.SAVIL = " ";
 
         // acceleration due to gravity for scaling centrifugal blade tension (m/s^2)
         context.gee = 9.81;
@@ -102,17 +102,17 @@ namespace xrotor {
         // ADW factor (multiplies TINV/PINV in ADW calculation)
         context.adwfctr = 1.0;
 
-        if (context.ii   > common::ix) throw runtime_error("Array overflow.  IX too small");
-        if (context.iinf > common::jx) throw runtime_error("Array overflow.  JX too small");
+        if (context.II   > common::IX) throw runtime_error("Array overflow.  IX too small");
+        if (context.IINF > common::JX) throw runtime_error("Array overflow.  JX too small");
 
         // actual-rotor radius is always 1 (non-dimensionalized with itself)
-        context.xitip = 1.0;
+        context.XITIP = 1.0;
 
         // default nacelle, wake perturbation velocities (non-existent)
-        for (double &i : context.ubody) i = 0;
+        for (double &i : context.UBODY) i = 0;
 
         // no slipstream velocity profiles
-        context.nadd = 0;
+        context.NADD = 0;
 
         // number of defined cases
         context.ncase = 0;
@@ -120,13 +120,13 @@ namespace xrotor {
 
         // max number of iterations for design, analysis
         context.niterd = 40;
-        context.nitera = 40;
+        context.NITERA = 40;
 
         // do not initialize rotor at each design cycle
         context.ldesini = false;
 
         // do initialize rotor at each design cycle
-        context.loprint = true;
+        context.LOPRINT = true;
 
         // no engine load line to start
         context.lpwrvar = false;
@@ -134,7 +134,7 @@ namespace xrotor {
         
         // no rotor yet
         context.lrotor = false;
-        for (int &i : context.iaero) i = 0;
+        for (int &i : context.IAERO) i = 0;
     }
 
     /**
@@ -143,33 +143,33 @@ namespace xrotor {
      * @param context
      */
     void setdef(common::context& context) {
-        context.rake = 0.0;
+        context.RAKE = 0.0;
 
-        context.vel = 1.0;
-        context.alt = 0.0;
-        atmo(context.alt, context.vso, context.rho, context.rmu); // sea level atmospheric conditions
+        context.VEL = 1.0;
+        context.ALT = 0.0;
+        atmo(context.ALT, context.VSO, context.RHO, context.RMU); // sea level atmospheric conditions
 
         // install data into aero section #1
         xaero::putaero(context,
-            1, 0, 0,                    // naero, xisect, a0
+            1, 0, 0,                    // NAERO, xisect, a0
             1.5, -0.5, 6.28, 0.1, 0.1,  // clmax, clmin, dclda, dclda_stall, dcl_stall
             0.013, 0.5, 0.004,          // cdmin, cldmin, cdccdl2
             -0.1, 0.8,                  // cmcon, mcrit
             200000, -0.4);              // reref, rexp
-        for (int &i : context.iaero) i = 1;
+        for (int &i : context.IAERO) i = 1;
 
         context.xpitch = 0.3;           // x/c location of pitch axis
 
-        context.ii = 30;                // number of radial stations
-        context.incr = 2;               // radial station increment for terminal output
-        context.ixspac = 2;             // r/R spacing flag
+        context.II = 30;                // number of radial stations
+        context.INCR = 2;               // radial station increment for terminal output
+        context.IXSPAC = 2;             // r/R spacing flag
 
-        context.vrtx = false;           // Vortex Wake (true)           / Graded Momentum (false) flag
-        context.fast = false;           // Graded momentum (true)       / Potential Formulation (false) flag
-        context.free = true;            // Self-deforming wake (true)   / Rigid-wake (false) flag
-        context.duct = false;           // Ducted (true)                / Free-tip (false) flag
+        context.VRTX = false;           // Vortex Wake (true)           / Graded Momentum (false) flag
+        context.FAST = false;           // Graded momentum (true)       / Potential Formulation (false) flag
+        context.FREE = true;            // Self-deforming wake (true)   / Rigid-wake (false) flag
+        context.DUCT = false;           // Ducted (true)                / Free-tip (false) flag
 
-        context.terse = false;          // terse-output flag
+        context.TERSE = false;          // TERSE-output flag
 
         context.lvnorm = true;          // flight speed used for normalization
     }
@@ -245,7 +245,7 @@ namespace xrotor {
 
         if (alspec > alt[n-1]) {
             cout << endl;
-            cout << "ATMO: You''re in low earth orbit.  Good luck." << endl;
+            cout << "ATMO: You''RE in low earth orbit.  Good luck." << endl;
             vsoalt = vso[n-1];
             rhoalt = vso[n-1];
             rmualt = rmu[n-1] * 1.0e-5;
@@ -273,30 +273,30 @@ namespace xrotor {
      */
     void reinit(common::context &context) {
         // estimate reasonable advance ratio to start iterative routines
-        int is = context.ii / 2 + 1;
+        int is = context.II / 2 + 1;
         // HHY had to set A0 to 0.0 as A0 is now section property
         double a0 = 0;
-        double ang = context.beta[is] - a0;
+        double ang = context.BETA[is] - a0;
 
-        double rpm = context.vel / (context.rad * context.adv * common::pi / 30.);
+        double rpm = context.VEL / (context.RAD * context.ADV * common::PI / 30.);
 
-        double adv0 = context.xi[is] * sin(ang) / cos(ang);
-        double rpm0 = context.vel / (context.rad * adv0 * common::pi / 30.);
+        double adv0 = context.XI[is] * sin(ang) / cos(ang);
+        double rpm0 = context.VEL / (context.RAD * adv0 * common::PI / 30.);
 
         userio::askr("Enter initialization RPM?", rpm);
 
-        context.adv = context.vel / (rpm * context.rad * common::pi / 30.);
-        context.adv = max(0.1, context.adv);
-        context.adw = context.adv;
+        context.ADV = context.VEL / (rpm * context.RAD * common::PI / 30.);
+        context.ADV = max(0.1, context.ADV);
+        context.ADW = context.ADV;
 
         // Set the blade angle back to reference angle
         bool yes;
         userio::askl("Restore blade angles to original?", yes);
-        if (yes) copy(context.beta, context.beta + context.ii, context.beta0);
+        if (yes) copy(context.BETA, context.BETA + context.II, context.BETA0);
 
         // calculate current operating point
         xoper::aper(context, 4, 2, true);
-        if (context.conv) output(context, cout);
+        if (context.CONV) output(context, cout);
     }
 
     /**
@@ -305,34 +305,34 @@ namespace xrotor {
      * @param context
      */
     void setx(common::context &context) {
-        context.dt = 0.5 * common::pi / float(context.ii);
-        double xm = context.xi0;
-        context.xv[0] = context.xi0;
+        context.DT = 0.5 * common::PI / float(context.II);
+        double xm = context.XI0;
+        context.XV[0] = context.XI0;
 
         double tp, xp;
-        for (int i = 0; i < context.ii; i++) {
-            context.t[i] = context.dt * (float(i) - 0.5);
-            tp           = context.dt * float(i);
+        for (int i = 0; i < context.II; i++) {
+            context.T[i] = context.DT * (float(i) - 0.5);
+            tp           = context.DT * float(i);
 
-            if (context.ixspac == 2) {
+            if (context.IXSPAC == 2) {
                 // Usual sine stretching, adjusted for nonzero root radius
-                context.xi[0] = sqrt(
-                    context.xitip * pow(sin(context.t[i]), 2) + pow(context.xi0 * cos(context.t[i]), 2));
+                context.XI[0] = sqrt(
+                    context.XITIP * pow(sin(context.T[i]), 2) + pow(context.XI0 * cos(context.T[i]), 2));
                 xp           = sqrt(
-                    context.xitip * pow(sin(tp          ), 2) + pow(context.xi0 * cos(tp          ), 2));
+                    context.XITIP * pow(sin(tp          ), 2) + pow(context.XI0 * cos(tp          ), 2));
             } else {
                 // Cosine stretching for more root resolution (also in TINVRT)
-                context.xi[0] = 0.5 * (1.0 - cos(2.0 * context.t[i])) * (context.xitip - context.xi0) + context.xi0;
-                xp            = 0.5 * (1.0 - cos(2.0 * tp          )) * (context.xitip - context.xi0) + context.xi0;
+                context.XI[0] = 0.5 * (1.0 - cos(2.0 * context.T[i])) * (context.XITIP - context.XI0) + context.XI0;
+                xp            = 0.5 * (1.0 - cos(2.0 * tp          )) * (context.XITIP - context.XI0) + context.XI0;
             }
 
-            context.xi[i] = (xp + xm) * 0.5;
-            context.dxi[i] = xp - xm;
+            context.XI[i] = (xp + xm) * 0.5;
+            context.DXI[i] = xp - xm;
 
             xm = xp;
-            context.xv[i+1] = xp;
+            context.XV[i+1] = xp;
         }
-        context.xv[context.ii + 1] = context.xitip;
+        context.XV[context.II + 1] = context.XITIP;
     }
 
     /**
@@ -342,7 +342,7 @@ namespace xrotor {
      * @param fname     name of the file
      */
     void opfile(ofstream &ofs, string &fname) {
-        // get filename if it hasn't been already specified
+        // get filename if it hasn'T been already specified
         if (fname[0] == ' ') userio::asks("Enter output filename", fname);
 
         // try to open the file
@@ -395,35 +395,35 @@ namespace xrotor {
      */
     void output(common::context &context, ostream& os) {
         int iadd = 1;
-        if (&os == &cout) iadd = context.incr;
+        if (&os == &cout) iadd = context.INCR;
 
         fprintf(os, "%75s\n", string(75, '=').c_str());
-        if (!context.conv) fprintf(os, "********** NOT CONVERGED **********\n");
+        if (!context.CONV) fprintf(os, "********** NOT CONVERGED **********\n");
 
         bool lheli = false;
-        double fac1 = context.rho * pow(context.vel, 2) * pow(context.rad, 2);
-        double fac2 = fac1 * context.vel;
+        double fac1 = context.RHO * pow(context.VEL, 2) * pow(context.RAD, 2);
+        double fac2 = fac1 * context.VEL;
 
         // dimensional thrust, power, torque, rpm
-        double tdim = context.ttot * fac1;
-        double qdim = context.qtot * fac1 * context.rad;
-        double pdim = context.ptot * fac2 * context.rad;
+        double tdim = context.TTOT * fac1;
+        double qdim = context.QTOT * fac1 * context.RAD;
+        double pdim = context.PTOT * fac2 * context.RAD;
 
-        double tvdim = context.tvis * fac1;
-        double pvdim = context.pvis * fac2;
+        double tvdim = context.TVIS * fac1;
+        double pvdim = context.PVIS * fac2;
 
-        double efftot = context.ttot / context.ptot;
-        double rpm = context.vel / (context.rad * context.adv * common::pi / 30.);
-        double dia = 2.0 * context.rad;
+        double efftot = context.TTOT / context.PTOT;
+        double rpm = context.VEL / (context.RAD * context.ADV * common::PI / 30.);
+        double dia = 2.0 * context.RAD;
 
         // Nacelle (or body) thrust is difference between thrust on
         // equivalent prop and real prop
-        double tnacel = (context.twak - context.tinv) * fac1;
+        double tnacel = (context.TWAK - context.TINV) * fac1;
 
         // blade solidity
-        spline::spline(context.ch, context.w1, context.xi, context.ii);
-        double ch34 = spline::seval(0.75, context.ch, context.w1, context.xi, context.ii);
-        double sigma = float(context.nblds) * ch34 / common::pi;
+        spline::spline(context.CH, context.W1, context.XI, context.II);
+        double ch34 = spline::seval(0.75, context.CH, context.W1, context.XI, context.II);
+        double sigma = float(context.NBLDS) * ch34 / common::PI;
 
         // standard coefficients based on forward speed
         double tc = tdim / (0.5 * fac1);
@@ -431,11 +431,11 @@ namespace xrotor {
 
         // standard coefficients based on rotational speed
         double en = rpm / 60.;
-        double ct = tdim / (context.rho * pow(en, 2) * pow(dia, 4));
-        double cp = pdim / (context.rho * pow(en, 3) * pow(dia, 5));
+        double ct = tdim / (context.RHO * pow(en, 2) * pow(dia, 4));
+        double cp = pdim / (context.RHO * pow(en, 3) * pow(dia, 5));
 
         // induced efficiency (including nacelle thrust effect)
-        double effind = context.twak / context.pwak;
+        double effind = context.TWAK / context.PWAK;
 
         // ideal (actuator disk) efficiency
         double tclim = max(-1.0, tc);
@@ -443,8 +443,8 @@ namespace xrotor {
 
         double cth, cph, ctos, fom;
         // define low advance ratio (helicopter?) related data
-        if (context.adv < 0.1) {
-            spline::spline(context.ch, context.w1, context.xi, context.ii);
+        if (context.ADV < 0.1) {
+            spline::spline(context.CH, context.W1, context.XI, context.II);
             cth = ct / 7.7516;
             cph = cp / 24.352;
             ctos = cth / sigma;
@@ -452,41 +452,41 @@ namespace xrotor {
             lheli = true;
         }
 
-        if (context.duct) {
-            switch (context.iwtyp) {
+        if (context.DUCT) {
+            switch (context.IWTYP) {
                 case 1:
                 case 3: fprintf(os, " Ducted Graded Mom. Formulation Solution:  ");
                 case 2: fprintf(os, " Ducted Potential Formulation Solution:  ");
                 default:;
             }
         } else {
-            switch (context.iwtyp) {
+            switch (context.IWTYP) {
                 case 1: fprintf(os, " Free Tip Graded Mom. Formulation Solution:  ");
                 case 2: fprintf(os, " Free Tip Potential Formulation Solution:  ");
                 case 3: fprintf(os, " Free Tip Vortex Wake Formulation Solution:  ");
                 default:;
             }
         }
-        fprintf(os, "%32s\n", context.name.c_str());
+        fprintf(os, "%32s\n", context.NAME.c_str());
 
-        if (context.nadd > 1) {
-            fprintf(os, " (External slipstream present)%19sWake adv. ratio:%11.5f\n", "", context.adw);
-        } else if (context.duct) {
-            fprintf(os, " Vdisk/Vslip:%11.5f%25sWake adv. ratio:%11.5f\n", context.urduct, "", context.adw);
+        if (context.NADD > 1) {
+            fprintf(os, " (External slipstream present)%19sWake ADV. ratio:%11.5f\n", "", context.ADW);
+        } else if (context.DUCT) {
+            fprintf(os, " Vdisk/Vslip:%11.5f%25sWake ADV. ratio:%11.5f\n", context.URDUCT, "", context.ADW);
         } else {
-            fprintf(os, "%50sWake adv. ratio:%11.5f\n", "", context.adw);
+            fprintf(os, "%50sWake ADV. ratio:%11.5f\n", "", context.ADW);
         }
 
-        if (context.adw < 0.5*context.adv)
+        if (context.ADW < 0.5*context.ADV)
             fprintf(os, " Reverse far-slipstream velocity implied. Interpret results carefully !");
 
-        fprintf(os, " no. blades :%3i   %9sradius(m)  :%9.4F %4sadv. ratio: %11.5F\n", context.nblds, "", context.rad, "", context.adv);
+        fprintf(os, " no. blades :%3i   %9sradius(m)  :%9.4F %4sadv. ratio: %11.5F\n", context.NBLDS, "", context.RAD, "", context.ADV);
         fprintf(os, " thrust(N)  :%11.3G%4spower(W)   :%11.3G%3storque(N-m):%11.3G\n", tdim, "", pdim, "", qdim);
-        fprintf(os, " Efficiency :%8.3F %6sspeed(m/s) :%9.3F %4srpm        :%11.3F\n", efftot, "", context.vel, "", rpm);
+        fprintf(os, " Efficiency :%8.3F %6sspeed(m/s) :%9.3F %4srpm        :%11.3F\n", efftot, "", context.VEL, "", rpm);
         fprintf(os, " Eff induced:%8.4F %6sEff ideal  :%9.4F %4sTcoef      :%11.4F\n", effind, "", eideal, "", tc);
-        fprintf(os, " Tnacel(N)  :%11.4F%4shub rad.(m):%9.4F %4sdisp. rad. :%10.4F\n", tnacel, "", context.xi0 * context.rad, "", context.xw0 * context.rad);
+        fprintf(os, " Tnacel(N)  :%11.4F%4shub RAD.(m):%9.4F %4sdisp. RAD. :%10.4F\n", tnacel, "", context.XI0 * context.RAD, "", context.XW0 * context.RAD);
         fprintf(os, " Tvisc(N)   :%11.4F%4sPvisc(W)   :%11.3G\n",                      tvdim, "", pvdim);
-        fprintf(os, " rho(kg/m3) :%10.5F%5sVsound(m/s):%9.3F %4smu(kg/m-s) :%11.4E\n", context.rho, "", context.vso, "", context.rmu);
+        fprintf(os, " RHO(kg/m3) :%10.5F%5sVsound(m/s):%9.3F %4smu(kg/m-s) :%11.4E\n", context.RHO, "", context.VSO, "", context.RMU);
         fprintf(os, " %75s\n", string(75, '-').c_str());
 
         // low advance ratio (helicopter?) data
@@ -497,16 +497,16 @@ namespace xrotor {
         }
 
         // coefficients based on rotational speed
-        fprintf(os, "%12s    Ct:%11.5F     Cp:%11.5F    J:%11.5F", "", ct, cp, context.adv * common::pi);
+        fprintf(os, "%12s    Ct:%11.5F     Cp:%11.5F    J:%11.5F", "", ct, cp, context.ADV * common::PI);
         // coefficients based on forward speed
-        fprintf(os, "%12s    Tc:%11.5F     Pc:%11.5F  adv:%11.5F", "", tc, pc, context.adv);
+        fprintf(os, "%12s    Tc:%11.5F     Pc:%11.5F  ADV:%11.5F", "", tc, pc, context.ADV);
 
-        if (context.terse) return;
+        if (context.TERSE) return;
 
         // find maximum RE on blade
         double remax = 0.0;
-        for (int i = 0; i < context.ii; i++) {
-            remax = max(context.re[i], remax);
+        for (int i = 0; i < context.II; i++) {
+            remax = max(context.RE[i], remax);
         }
         double reexp = 1.0;
         if (remax >= 1.0e6) {
@@ -516,9 +516,9 @@ namespace xrotor {
         }
 
         if (reexp == 1.0) {
-            fprintf(os, "\n  i  r/R    c/R  beta(deg)   CL      Cd    RE    Mach   effi  effp  na.u/U");
+            fprintf(os, "\n  i  r/R    c/R  BETA(deg)   CL      Cd    RE    Mach   effi  EFFP  na.u/U");
         } else {
-            fprintf(os, "\n  i  r/R   c/R  beta(deg)  CL     Cd    REx10^%1i Mach   effi  effp  na.u/U", (int)reexp);
+            fprintf(os, "\n  i  r/R   c/R  BETA(deg)  CL     Cd    REx10^%1i Mach   effi  EFFP  na.u/U", (int)reexp);
         }
 
         double wa, wt;
@@ -527,16 +527,16 @@ namespace xrotor {
                si, si_va, w, w_adv, w_vt, w_va, phi, p_adv, p_vt, p_va;
         double mach, bdeg, xre;
         char schar[1] = {' '};
-        for (int i = 0; i < context.ii; i += iadd) {
+        for (int i = 0; i < context.II; i += iadd) {
             // use equivalent prop to define local efficiency
-            uvadd(context, context.xi[i], wa, wt);
-            vw = context.vwak[i];
-            vaw = vw * context.xw[i] / context.adw;
+            uvadd(context, context.XI[i], wa, wt);
+            vw = context.VWAK[i];
+            vaw = vw * context.XW[i] / context.ADW;
             // Freestream velocity component on equiv prop
-            utotw = context.urduct;
-            cw = context.xi[i] / context.adv - wt - vw;
+            utotw = context.URDUCT;
+            cw = context.XI[i] / context.ADV - wt - vw;
             sw = utotw                       + wa - vaw;
-            effi = (cw / sw)                 * context.adv / context.xw[i];
+            effi = (cw / sw)                 * context.ADV / context.XW[i];
 
             // use real prop to define Mach number
             xoper::cscalc(i, utot, wa, wt,
@@ -548,17 +548,17 @@ namespace xrotor {
                           w, w_adv, w_vt, w_va,
                           phi, p_adv, p_vt, p_va);
 
-            mach = w * context.vel / context.vso;
+            mach = w * context.VEL / context.VSO;
 
-            bdeg = context.beta[i] * 180. / common::pi;
-            xre = context.re[i] / (pow(10., reexp));
+            bdeg = context.BETA[i] * 180. / common::PI;
+            xre = context.RE[i] / (pow(10., reexp));
 
             schar[0] = ' ';
-            if (context.stall[i]) schar[0] = 'S';
+            if (context.STALL[i]) schar[0] = 'S';
 
             fprintf(os, " %2i%6.3F%7.4F%7.2F%7.3F %1s%7.4F %6.2F %6.3F %6.3F%6.3F%8.3F\n",
-                i, context.xi[i], context.ch[i], bdeg, context.cl[i], schar, context.cd[i], xre, mach,
-                effi, context.effp[i], context.ubody[i]);
+                i, context.XI[i], context.CH[i], bdeg, context.CL[i], schar, context.CD[i], xre, mach,
+                effi, context.EFFP[i], context.UBODY[i]);
         }
     }
 
@@ -572,12 +572,12 @@ namespace xrotor {
         wa = 0;
         wt = 0;
 
-        if (context.nadd <= 1) return;
+        if (context.NADD <= 1) return;
 
-        double rdim = xiw * context.rad;
-        if (rdim >= context.radd[0] and rdim <= context.radd[context.nadd-1]) {
-            wa = spline::seval(rdim, context.uadd, context.uaddr, context.radd, context.nadd) / context.vel;
-            wt = spline::seval(rdim, context.vadd, context.vaddr, context.radd, context.nadd) / context.vel;
+        double rdim = xiw * context.RAD;
+        if (rdim >= context.RADD[0] and rdim <= context.RADD[context.NADD-1]) {
+            wa = spline::seval(rdim, context.UADD, context.UADDR, context.RADD, context.NADD) / context.VEL;
+            wt = spline::seval(rdim, context.VADD, context.VADDR, context.RADD, context.NADD) / context.VEL;
         }
     }
 }

@@ -6,7 +6,7 @@
 #include "common.h"
 #include "vortex.h"
 using namespace std;
-using common::pi;
+using common::PI;
 
 namespace vortex {
 
@@ -50,13 +50,13 @@ namespace vortex {
         }
 
         // Set up variable theta spacing for near, intermediate and far field
-        double dth1  = pi / 60.;
+        double dth1  = PI / 60.;
         double rad1  = 2.0;
         double thet1 = rad1 / adw;
-        double dth2  = pi / 20.;
+        double dth2  = PI / 20.;
         double rad2  = 4.0;
         double thet2 = rad2 / adw;
-        double dth3  = pi / 8.;
+        double dth3  = PI / 8.;
         double rad3  = 50.0;
         double thet3 = rad3 / adw;
 
@@ -95,13 +95,13 @@ namespace vortex {
         if (lduct) {
             // use simple mean swirl to get swirl at blade
             for (int i = 0; i < ii; i++) {
-                vind_gam[2][i][i] =  blds / (4.0 * pi * xi[i]);
+                vind_gam[2][i][i] =  blds / (4.0 * PI * xi[i]);
                 vind_gam[0][i][i] =  vind_gam[2][i][i] * xi[i]  / adw;
                 vind_adw[0][i]    = -vind_gam[0][i][i] * gam[i] / adw;
             }
         } else {
             // Do a discrete vortex integration of slipstream vortices
-            double dtbld = 2.0 * pi / blds;
+            double dtbld = 2.0 * PI / blds;
             cout << "Vortex points/radial station = " << nblds * nthet;
 
             double r0x, r0y, r0z,
@@ -273,7 +273,7 @@ namespace vortex {
             }
         }
 
-        double pi4 = 4.0 * common::pi;
+        double pi4 = 4.0 * common::PI;
         for (k = 0; k < 2; k++) {
             uvw[k] /= pi4;
 

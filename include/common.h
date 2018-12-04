@@ -12,86 +12,78 @@
 using namespace std;
 
 namespace common {
-    const int ix = 100;                 /**< max number of radial prop stations */
-    const int ipx = ix + 1;
-    const int nparx = 12;               /**< max number of stored cases */
-    const int icasx = 100;              /**< number of case parameters stored */
-    const int iwx = 200;                /**< dimension of work arrays */
+    const int IX = 100;                 /**< max number of radial prop stations */
+    const int IPX = IX + 1;
+    const int NPARX = 12;               /**< max number of stored cases */
+    const int ICASX = 100;              /**< number of case parameters stored */
+    const int IWX = 200;                /**< dimension of work arrays */
 
-    const int nax = 20;                 /**< max number of aerodynamic sections defined */
-    const int ndx = 14;                 /**< number of aerodynamic parameters defined for each section */
+    const int NAX = 20;                 /**< max number of aerodynamic sections defined */
+    const int NDX = 14;                 /**< number of aerodynamic parameters defined for each section */
 
-    const int iq = ix + 5;
-    const int jx = (iq * 3) / 2 + 1;
+    const int JQ = IX + 5;
+    const int JX = (JQ * 3) / 2 + 1;
 
-    const double pi = 3.14159265358979323846264338327950288;
+    const double PI = 3.14159265358979323846264338327950288;
 
     struct context {
-        bool conv, greek, terse, vrtx, fast, free, duct, lstruc,
-             dest, desp, ldesini, loprint,
-             lrotor, lvnorm, lpwrvar, legend;
+        double MCRIT;
 
-        double mcrit;
+        bool CONV, GREEK, TERSE, VRTX, FAST, FREE, DUCT, LSTRUCT,
+            DEST, DESP, LDESINI, LOPRINI,
+            LROTOR, LVNORM, LPWRVAR, STALL[IX], LEGEND;
 
-        string savil, fname;
-        string name;
+        string SAVIL, FNAME, NAME;
 
-        bool stall[ix];
+        double RHO, RMU, VSO, VEL, RAD, GEE, ALT;
 
-        double rho, rmu, vso, vel, rad, gee, alt;
+        int II, IINF, INCR, NN, NBLDS, IXSPAC,
+            NITERD, NITERA;
 
-        int ii, iinf, incr, nn, nblds, ixspac,
-            niterd, nitera;
+        float VERSION;
+        double DT;
 
-        float version;
-        double dt;
+        int IAERO[IX];
 
-        int iaero[ix];
+        double CH[IX], BETA[IX], BETA0[IX], T[IX], DBETA,
+               XI[IX], DXI[IX], XI0, XITIP, XINF,
+               XPITCH, XV[IX], RAKE;
 
-        double dbeta,
-               xi0, xitip, xinf,
-               xpitch, rake;
-        double ch[ix], beta[ix], beta0[ix], t[ix],
-               xi[ix], dxi[ix],
-               xv[ix];
+        int NADD;
+        double RADD[IX],
+               UADD[IX], VADD[IX],
+               UADDR[IX], VADDR[IX],
+               UBODY[IX], VBODY[IX], URDUCT;
 
-        int nadd;
-        double radd[ix],
-               uadd[ix], vadd[ix],
-               uaddr[ix], vaddr[ix],
-               ubody[ix], vbody[ix];
-        double urduct;
+        double CL[IX], CD[IX], CM[IX],
+               RE[IX], EFFP[IX], GAM[IX],
+               DTII[IX], DPII[IX],
+               DTVI[IX], DPVI[IX],
+               DTWI[IX], DPWI[IX];
 
-        double cl[ix], cd[ix], cm[ix],
-               re[ix], effp[ix], gam[ix],
-               dtii[ix], dpii[ix],
-               dtvi[ix], dpvi[ix],
-               dtwi[ix], dpwi[ix];
+        int NAERO;
+        double XIAERO[NAX], AERODATA[NDX][NAX];
 
-        int naero;
-        double xiaero[nax];
-        double aerodata[ndx][nax];
+        int NCASE, KCASE, IWTYP;
 
-        int ncase, kcase, iwtyp;
+        double ADV, ADW, ADWFCTR,
+               RMS, RLX, EFFINV,
+               TSPEC, PSPEC, QSPEC,
+               TTOT, PTOT, QTOT,
+               TINV, PINV, TWAK, PWAK, TVIS, PVIS,
+               GRESMX, FRESMX, ARESMX;
 
-        double adv, adw, adwfctr,
-                rms, rlx, effinv,
-                tspec, pspec, qspec,
-                ttot, ptot, qtot,
-                tinv, pinv, twak, pwak, tvis, pvis,
-                gresmx, fresmx, aresmx;
+        double W0[IWX], W1[IWX], W2[IWX], W3[IWX], W4[IWX],
+               W5[IWX], W6[IWX], W7[IWX], W8[IWX], W9[IWX];
 
-        double w0[iwx], w1[iwx], w2[iwx], w3[iwx], w4[iwx],
-               w5[iwx], w6[iwx], w7[iwx], w8[iwx], w9[iwx];
+        int NPWRVAR;
 
-        int npwrvar;
+        double VWAK[IX], VW_GAM[IX][IX], VW_ADW[IX], VW_ADV[IX],
+               VIND[3][IX], VIND_GAM[3][IX][IX], VIND_ADW[3][IX];
 
-        double vwak[ix], vw_gam[ix], vw_adw[ix], vw_adv[ix],
-               vind[3][ix], vind_gam[3][ix][ix], vind_adw[3][ix];
-
-        double xw0;
-        double xw[ix], xw_gam[ix][ix], xw_adw[ix][ix], xw_adv[ix][ix],
-               dwx[ix], dxw_gam[ix][ix], dxw_adw[ix][ix], dxw_adv[ix][ix];
+        double XW0, XWTIP,
+               XW[IX],   xw_gam[IX][IX],  xw_adw[IX][IX],  xw_adv[IX][IX],
+               dwx[IX], dxw_gam[IX][IX], dxw_adw[IX][IX], dxw_adv[IX][IX];
 
     };
 

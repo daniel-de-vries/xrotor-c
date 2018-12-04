@@ -6,8 +6,8 @@
 #define XROTOR_NOGRAPHICS_C_XUTILS_H
 
 namespace xutils {
-    template <int nsiz, int nrhs>
-    void GAUSS(int nn, double z[nsiz][nsiz], double r[nsiz][nrhs]);
+    template <int nsiz, int nrhs_full>
+    void GAUSS(int nn, double z[nsiz][nsiz], double r[nsiz][nrhs_full], int nrhs);
 }
 
 #endif //XROTOR_NOGRAPHICS_C_XUTILS_H

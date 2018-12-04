@@ -5,6 +5,9 @@
 #ifndef XROTOR_NOGRAPHICS_CPP_COMMON_H
 #define XROTOR_NOGRAPHICS_CPP_COMMON_H
 
+#include <fstream>
+#include <cstdio>
+#include <cstdarg>
 #include <string>
 using namespace std;
 
@@ -91,6 +94,22 @@ namespace common {
                dwx[ix], dxw_gam[ix][ix], dxw_adw[ix][ix], dxw_adv[ix][ix];
 
     };
+
+    /**
+     * Write a formatted string to an output stream.
+     *
+     * @param os        output stream
+     * @param format    format string
+     * @param ...       arguments to the format string
+     */
+    void fprintf(ostream& os, const char* format, ...) {
+        va_list argv;
+        va_start(argv, format);
+        char buff[1024];
+        vsprintf(buff, format, argv);
+        va_end(argv);
+        os << buff;
+    }
 }
 
 

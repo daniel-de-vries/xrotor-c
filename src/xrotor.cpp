@@ -7,7 +7,6 @@
 #include <stdexcept>
 #include <string>
 #include <iostream>
-#include <stdio.h>
 #include "spline.h"
 #include "userio.h"
 #include "xaero.h"
@@ -16,6 +15,7 @@
 #include "xnoise.h"
 #include "xoper.h"
 #include "xrotor.h"
+using common::fprintf;
 
 
 namespace xrotor {
@@ -393,12 +393,12 @@ namespace xrotor {
      * @param context
      * @param pFile     pointer to FILE object identifying output stream
      */
-    void output(common::context &context, FILE* pFile) {
+    void output(common::context &context, ostream& os) {
         int iadd = 1;
-        if (pFile == stdout) iadd = context.incr;
+        if (&os == &cout) iadd = context.incr;
 
-        fprintf(pFile, "%75s\n", string(75, '=').c_str());
-        if (!context.conv) fprintf(pFile, "********** NOT CONVERGED **********\n");
+        fprintf(os, "%75s\n", string(75, '=').c_str());
+        if (!context.conv) fprintf(os, "********** NOT CONVERGED **********\n");
 
         bool lheli = false;
         double fac1 = context.rho * pow(context.vel, 2) * pow(context.rad, 2);
@@ -455,51 +455,51 @@ namespace xrotor {
         if (context.duct) {
             switch (context.iwtyp) {
                 case 1:
-                case 3: fprintf(pFile, " Ducted Graded Mom. Formulation Solution:  ");
-                case 2: fprintf(pFile, " Ducted Potential Formulation Solution:  ");
+                case 3: fprintf(os, " Ducted Graded Mom. Formulation Solution:  ");
+                case 2: fprintf(os, " Ducted Potential Formulation Solution:  ");
                 default:;
             }
         } else {
             switch (context.iwtyp) {
-                case 1: fprintf(pFile, " Free Tip Graded Mom. Formulation Solution:  ");
-                case 2: fprintf(pFile, " Free Tip Potential Formulation Solution:  ");
-                case 3: fprintf(pFile, " Free Tip Vortex Wake Formulation Solution:  ");
+                case 1: fprintf(os, " Free Tip Graded Mom. Formulation Solution:  ");
+                case 2: fprintf(os, " Free Tip Potential Formulation Solution:  ");
+                case 3: fprintf(os, " Free Tip Vortex Wake Formulation Solution:  ");
                 default:;
             }
         }
-        fprintf(pFile, "%32s\n", context.name.c_str());
+        fprintf(os, "%32s\n", context.name.c_str());
 
         if (context.nadd > 1) {
-            fprintf(pFile, " (External slipstream present)%19sWake adv. ratio:%11.5f\n", "", context.adw);
+            fprintf(os, " (External slipstream present)%19sWake adv. ratio:%11.5f\n", "", context.adw);
         } else if (context.duct) {
-            fprintf(pFile, " Vdisk/Vslip:%11.5f%25sWake adv. ratio:%11.5f\n", context.urduct, "", context.adw);
+            fprintf(os, " Vdisk/Vslip:%11.5f%25sWake adv. ratio:%11.5f\n", context.urduct, "", context.adw);
         } else {
-            fprintf(pFile, "%50sWake adv. ratio:%11.5f\n", "", context.adw);
+            fprintf(os, "%50sWake adv. ratio:%11.5f\n", "", context.adw);
         }
 
         if (context.adw < 0.5*context.adv)
-            fprintf(pFile, " Reverse far-slipstream velocity implied. Interpret results carefully !");
+            fprintf(os, " Reverse far-slipstream velocity implied. Interpret results carefully !");
 
-        fprintf(pFile, " no. blades :%3i   %9sradius(m)  :%9.4F %4sadv. ratio: %11.5F\n", context.nblds, "", context.rad, "", context.adv);
-        fprintf(pFile, " thrust(N)  :%11.3G%4spower(W)   :%11.3G%3storque(N-m):%11.3G\n", tdim, "", pdim, "", qdim);
-        fprintf(pFile, " Efficiency :%8.3F %6sspeed(m/s) :%9.3F %4srpm        :%11.3F\n", efftot, "", context.vel, "", rpm);
-        fprintf(pFile, " Eff induced:%8.4F %6sEff ideal  :%9.4F %4sTcoef      :%11.4F\n", effind, "", eideal, "", tc);
-        fprintf(pFile, " Tnacel(N)  :%11.4F%4shub rad.(m):%9.4F %4sdisp. rad. :%10.4F\n", tnacel, "", context.xi0 * context.rad, "", context.xw0 * context.rad);
-        fprintf(pFile, " Tvisc(N)   :%11.4F%4sPvisc(W)   :%11.3G\n",                      tvdim, "", pvdim);
-        fprintf(pFile, " rho(kg/m3) :%10.5F%5sVsound(m/s):%9.3F %4smu(kg/m-s) :%11.4E\n", context.rho, "", context.vso, "", context.rmu);
-        fprintf(pFile, " %75s\n", string(75, '-').c_str());
+        fprintf(os, " no. blades :%3i   %9sradius(m)  :%9.4F %4sadv. ratio: %11.5F\n", context.nblds, "", context.rad, "", context.adv);
+        fprintf(os, " thrust(N)  :%11.3G%4spower(W)   :%11.3G%3storque(N-m):%11.3G\n", tdim, "", pdim, "", qdim);
+        fprintf(os, " Efficiency :%8.3F %6sspeed(m/s) :%9.3F %4srpm        :%11.3F\n", efftot, "", context.vel, "", rpm);
+        fprintf(os, " Eff induced:%8.4F %6sEff ideal  :%9.4F %4sTcoef      :%11.4F\n", effind, "", eideal, "", tc);
+        fprintf(os, " Tnacel(N)  :%11.4F%4shub rad.(m):%9.4F %4sdisp. rad. :%10.4F\n", tnacel, "", context.xi0 * context.rad, "", context.xw0 * context.rad);
+        fprintf(os, " Tvisc(N)   :%11.4F%4sPvisc(W)   :%11.3G\n",                      tvdim, "", pvdim);
+        fprintf(os, " rho(kg/m3) :%10.5F%5sVsound(m/s):%9.3F %4smu(kg/m-s) :%11.4E\n", context.rho, "", context.vso, "", context.rmu);
+        fprintf(os, " %75s\n", string(75, '-').c_str());
 
         // low advance ratio (helicopter?) data
         if (lheli) {
-            fprintf(pFile, "Helicopter: Sigma:%11.5F  CTh/s:%11.5F  FOM:%11.5F", sigma, ctos, fom);
+            fprintf(os, "Helicopter: Sigma:%11.5F  CTh/s:%11.5F  FOM:%11.5F", sigma, ctos, fom);
         } else {
-            fprintf(pFile, " Sigma:%11.5F", sigma);
+            fprintf(os, " Sigma:%11.5F", sigma);
         }
 
         // coefficients based on rotational speed
-        fprintf(pFile, "%12s    Ct:%11.5F     Cp:%11.5F    J:%11.5F", "", ct, cp, context.adv * common::pi);
+        fprintf(os, "%12s    Ct:%11.5F     Cp:%11.5F    J:%11.5F", "", ct, cp, context.adv * common::pi);
         // coefficients based on forward speed
-        fprintf(pFile, "%12s    Tc:%11.5F     Pc:%11.5F  adv:%11.5F", "", tc, pc, context.adv);
+        fprintf(os, "%12s    Tc:%11.5F     Pc:%11.5F  adv:%11.5F", "", tc, pc, context.adv);
 
         if (context.terse) return;
 
@@ -516,9 +516,9 @@ namespace xrotor {
         }
 
         if (reexp == 1.0) {
-            fprintf(pFile, "\n  i  r/R    c/R  beta(deg)   CL      Cd    RE    Mach   effi  effp  na.u/U");
+            fprintf(os, "\n  i  r/R    c/R  beta(deg)   CL      Cd    RE    Mach   effi  effp  na.u/U");
         } else {
-            fprintf(pFile, "\n  i  r/R   c/R  beta(deg)  CL     Cd    REx10^%1i Mach   effi  effp  na.u/U", (int)reexp);
+            fprintf(os, "\n  i  r/R   c/R  beta(deg)  CL     Cd    REx10^%1i Mach   effi  effp  na.u/U", (int)reexp);
         }
 
         double wa, wt;
@@ -556,7 +556,7 @@ namespace xrotor {
             schar[0] = ' ';
             if (context.stall[i]) schar[0] = 'S';
 
-            fprintf(pFile, " %2i%6.3F%7.4F%7.2F%7.3F %1s%7.4F %6.2F %6.3F %6.3F%6.3F%8.3F\n",
+            fprintf(os, " %2i%6.3F%7.4F%7.2F%7.3F %1s%7.4F %6.2F %6.3F %6.3F%6.3F%8.3F\n",
                 i, context.xi[i], context.ch[i], bdeg, context.cl[i], schar, context.cd[i], xre, mach,
                 effi, context.effp[i], context.ubody[i]);
         }

@@ -24,7 +24,7 @@ namespace xrotor {
      * Interactive Design and Analysis Program
      *     for Free-tip and Ducted Rotors
      */
-    void xrotor() {
+    void XROTOR() {
         common::context context;
         context.VERSION = 7.55;
 
@@ -34,7 +34,7 @@ namespace xrotor {
         cout << " =========================" << endl;
         cout << endl;
 
-        init(context);
+        INIT(context);
 
         string command, comarg;
         bool showHelp = true;
@@ -62,7 +62,7 @@ namespace xrotor {
             if (command == "BEND") xbend::bend(context);
             if (command == "LOAD") xio::LOAD(context, comarg);
             if (command == "NOIS") xnoise::noise(context);
-            if (command == "DISP") output(context, cout);
+            if (command == "DISP") OUTPUT(context, cout);
             else if (context.GREEK) {
                 cout << command << " command not recognized.  Type a \"?\" for list" << endl;
             }
@@ -74,13 +74,13 @@ namespace xrotor {
      *
      * @param context
      */
-    void init(common::context& context) {
+    void INIT(common::context &context) {
         context.GREEK = false;
 
         // XROTOR defaults
         context.URDUCT = 1.0;
 
-        setdef(context);
+        SETDEF(context);
 
         if (context.DUCT) {
             cout << "Aprop/Aexit initialized to 1.0" << endl;
@@ -142,12 +142,12 @@ namespace xrotor {
      *
      * @param context
      */
-    void setdef(common::context& context) {
+    void SETDEF(common::context &context) {
         context.RAKE = 0.0;
 
         context.VEL = 1.0;
         context.ALT = 0.0;
-        atmo(context.ALT, context.VSO, context.RHO, context.RMU); // sea level atmospheric conditions
+        ATMO(context.ALT, context.VSO, context.RHO, context.RMU); // sea level atmospheric conditions
 
         // install data into aero section #1
         xaero::PUTAERO(context,
@@ -161,7 +161,7 @@ namespace xrotor {
         context.xpitch = 0.3;           // x/c location of pitch axis
 
         context.II = 30;                // number of radial stations
-        context.INCR = 2;               // radial station increment for terminal output
+        context.INCR = 2;               // radial station increment for terminal OUTPUT
         context.IXSPAC = 2;             // r/R spacing flag
 
         context.VRTX = false;           // Vortex Wake (true)           / Graded Momentum (false) flag
@@ -169,7 +169,7 @@ namespace xrotor {
         context.FREE = true;            // Self-deforming wake (true)   / Rigid-wake (false) flag
         context.DUCT = false;           // Ducted (true)                / Free-tip (false) flag
 
-        context.TERSE = false;          // TERSE-output flag
+        context.TERSE = false;          // TERSE-OUTPUT flag
 
         context.lvnorm = true;          // flight speed used for normalization
     }
@@ -190,7 +190,7 @@ namespace xrotor {
      * @param rhoalt        density in kg/m^3
      * @param rmualt        dynamic viscosity in kg/(m*s)
      */
-    void atmo(double alspec, double &vsoalt, double &rhoalt, double &rmualt) {
+    void ATMO(double alspec, double &vsoalt, double &rhoalt, double &rmualt) {
         const int n = 44;
         const bool first = true;
         const double alt[] = {  0.0,  1.0,  2.0,  3.0,  4.0,  5.0,  6.0,  7.0,  8.0,  9.0,
@@ -252,7 +252,7 @@ namespace xrotor {
         }
     }
 
-    void flosho(ostream &os, double vso, double rho, double rmu) {
+    void FLOSHO(ostream &os, double vso, double rho, double rmu) {
         const double R = 287.0;
         const double gam = 1.4;
         double rnu = rmu / rho;
@@ -271,7 +271,7 @@ namespace xrotor {
      *
      * @param context
      */
-    void reinit(common::context &context) {
+    void REINIT(common::context &context) {
         // estimate reasonable advance ratio to start iterative routines
         int is = context.II / 2 + 1;
         // HHY had to set A0 to 0.0 as A0 is now section property
@@ -296,7 +296,7 @@ namespace xrotor {
 
         // calculate current operating point
         xoper::APER(context, 4, 2, true);
-        if (context.CONV) output(context, cout);
+        if (context.CONV) OUTPUT(context, cout);
     }
 
     /**
@@ -304,7 +304,7 @@ namespace xrotor {
      *
      * @param context
      */
-    void setx(common::context &context) {
+    void SETX(common::context &context) {
         context.DT = 0.5 * common::PI / float(context.II);
         double xm = context.XI0;
         context.XV[0] = context.XI0;
@@ -341,7 +341,7 @@ namespace xrotor {
      * @param ofs       output file stream
      * @param fname     name of the file
      */
-    void opfile(ofstream &ofs, string &fname) {
+    void OPFILE(ofstream &ofs, string &fname) {
         // get filename if it hasn'T been already specified
         if (fname[0] == ' ') userio::ASKS("Enter output filename", fname);
 
@@ -393,7 +393,7 @@ namespace xrotor {
      * @param context
      * @param pFile     pointer to FILE object identifying output stream
      */
-    void output(common::context &context, ostream& os) {
+    void OUTPUT(common::context &context, ostream &os) {
         int iadd = 1;
         if (&os == &cout) iadd = context.INCR;
 
@@ -529,7 +529,7 @@ namespace xrotor {
         char schar[1] = {' '};
         for (int i = 0; i < context.II; i += iadd) {
             // use equivalent prop to define local efficiency
-            uvadd(context, context.XI[i], wa, wt);
+            UVADD(context, context.XI[i], wa, wt);
             vw = context.VWAK[i];
             vaw = vw * context.XW[i] / context.ADW;
             // Freestream velocity component on equiv prop
@@ -539,7 +539,8 @@ namespace xrotor {
             effi = (cw / sw)                 * context.ADV / context.XW[i];
 
             // use real prop to define Mach number
-            xoper::cscalc(i, utot, wa, wt,
+            xoper::CSCALC(context,
+                          i, utot, wa, wt,
                           vt, vt_adw,
                           va, va_adw,
                           vd, vd_adw,
@@ -568,7 +569,7 @@ namespace xrotor {
      * @param wa
      * @param wt
      */
-    void uvadd(common::context& context, double xiw, double& wa, double& wt) {
+    void UVADD(common::context &context, double xiw, double &wa, double &wt) {
         wa = 0;
         wt = 0;
 

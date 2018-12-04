@@ -11,16 +11,16 @@
 using namespace std;
 
 namespace xrotor {
-    void xrotor();
-    void init(common::context& context);
-    void setdef(common::context& context);
-    void atmo(double alspec, double& vsoalt, double& rhoalt, double& rmualt);
-    void flosho(double vso, double rho, double rmu);
-    void reinit(common::context& context);
-    void setx(common::context& context);
-    void opfile(ofstream& ofs, string& fname);
-    void output(common::context &context, ostream &ofs);
-    void uvadd(common::context& context, double xiw, double& wa, double& wt);
+    void XROTOR();
+    void INIT(common::context &context);
+    void SETDEF(common::context &context);
+    void ATMO(double alspec, double &vsoalt, double &rhoalt, double &rmualt);
+    void FLOSHO(ostream &os, double vso, double rho, double rmu);
+    void REINIT(common::context &context);
+    void SETX(common::context &context);
+    void OPFILE(ofstream &ofs, string &fname);
+    void OUTPUT(common::context &context, ostream &ofs);
+    void UVADD(common::context &context, double xiw, double &wa, double &wt);
 }
 
 #endif //XROTOR_NOGRAPHICS_C_XROTOR_H

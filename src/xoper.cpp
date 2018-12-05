@@ -129,7 +129,7 @@ namespace xoper {
          * Select options for slipstream and velocity calculation.
          * @param ctxt
          */
-        void FROM(common::context &ctxt) {
+        void FORM(common::context &ctxt) {
             string command, comarg;
             while (true) {
                 printf(

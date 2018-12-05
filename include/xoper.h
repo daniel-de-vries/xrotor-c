@@ -11,46 +11,46 @@ using namespace std;
 #include <common.h>
 
 namespace xoper {
-    void OPER(common::context &context);
+    void OPER(common::context &ctxt);
 
     namespace commands {
-        void FORM(common::context& context);
-        void TERS(common::context& context);
-        void DISP(common::context& context);
-        void NAME(common::context& context);
-        void WRIT(common::context& context, string fName);
-        void DUCT(common::context& context);
-        void VRAT(common::context& context);
-        void ATMO(common::context& context);
-        void VELO(common::context& context);
-        void ANGL(common::context& context);
-        void ADVA(common::context& context);
-        void RPM (common::context& context, int ninput, vector<double> rinput);
-        void THRU(common::context& context, int ninput, vector<double> rinput);
-        void TORQ(common::context& context);
-        void POWE(common::context& context);
-        void ASEQ(common::context& context);
-        void RSEQ(common::context& context);
-        void BSEQ(common::context& context);
-        void VSEQ(common::context& context);
-        void CLRC(common::context& context);
-        void ADDC(common::context& context);
-        void CPUT(common::context& context);
-        void CGET(common::context& context);
-        void CASE(common::context& context);
-        void LIST(common::context& context);
-        void N   (common::context& context);
-        void ITER(common::context& context, int ninput, vector<int> iinput);
-        void INIT(common::context& context);
-        void REIN(common::context& context);
+        void FORM(common::context &ctxt);
+        void TERS(common::context &ctxt);
+        void DISP(common::context &ctxt);
+        void NAME(common::context &ctxt);
+        void WRIT(common::context &ctxt, string fName);
+        void DUCT(common::context &ctxt);
+        void VRAT(common::context &ctxt);
+        void ATMO(common::context &ctxt);
+        void VELO(common::context &ctxt);
+        void ANGL(common::context &ctxt);
+        void ADVA(common::context &ctxt);
+        void RPM (common::context &ctxt, int ninput, vector<double> rinput);
+        void THRU(common::context &ctxt, int ninput, vector<double> rinput);
+        void TORQ(common::context &ctxt);
+        void POWE(common::context &ctxt);
+        void ASEQ(common::context &ctxt);
+        void RSEQ(common::context &ctxt);
+        void BSEQ(common::context &ctxt);
+        void VSEQ(common::context &ctxt);
+        void CLRC(common::context &ctxt);
+        void ADDC(common::context &ctxt);
+        void CPUT(common::context &ctxt);
+        void CGET(common::context &ctxt);
+        void CASE(common::context &ctxt);
+        void LIST(common::context &ctxt);
+        void N   (common::context &ctxt);
+        void ITER(common::context &ctxt, int ninput, vector<int> iinput);
+        void INIT(common::context &ctxt);
+        void REIN(common::context &ctxt);
     }
 
-    void APER  (common::context& context, unsigned short ispec, unsigned short icon, bool linit);
-    void APINIT(common::context& context);
-    void APITER(common::context& context, unsigned short ispec, bool icon);
+    void APER  (common::context &ctxt, unsigned short ispec, unsigned short icon, bool linit);
+    void APINIT(common::context &ctxt);
+    void APITER(common::context &ctxt, unsigned short ispec, bool icon);
 
-    void CSCALC(common::context& context,
-                const int &i, double& utot, const double &wa, const double &wt,
+    void CSCALC(common::context &ctxt,
+                const int &i, double &utot, const double &wa, const double &wt,
                 double & vt, double &vt_adw,
                 double & va, double &va_adw,
                 double & vd, double &vd_adw,
@@ -59,10 +59,10 @@ namespace xoper {
                 double &  w, double & w_adv, double & w_vt, double & w_va,
                 double &phi, double & p_adv, double & p_vt, double & p_va);
 
-    void XWINIT(common::context& context);
-    void SETXW (common::context& context);
-    void TPQ   (common::context& context, unsigned short itype);
-    void VCALC (common::context& context);
+    void XWINIT(common::context &ctxt);
+    void SETXW (common::context &ctxt);
+    void TPQ   (common::context &ctxt, unsigned short itype);
+    void VCALC (common::context &ctxt);
 
     template <const int imax>
     void GRADMO(const int &ii, const int &nblds, const bool &lduct, const double &rake,

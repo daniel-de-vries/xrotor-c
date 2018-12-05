@@ -11,7 +11,7 @@ using namespace std;
 #include <common.h>
 
 namespace xbend {
-    void bend(common::context& context) {
+    void bend(common::context &ctxt) {
         cout << "NOT IMPLEMENTED" << endl;
     }
 }

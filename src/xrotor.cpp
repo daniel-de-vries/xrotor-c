@@ -25,16 +25,16 @@ namespace xrotor {
      *     for Free-tip and Ducted Rotors
      */
     void XROTOR() {
-        common::context context;
-        context.VERSION = 7.55;
+        common::context ctxt;
+        ctxt.VERSION = 7.55;
 
         cout << endl;
         cout << " =========================" << endl;
-        cout << "    XROTOR Version " << context.VERSION << endl;
+        cout << "    XROTOR Version " << ctxt.VERSION << endl;
         cout << " =========================" << endl;
         cout << endl;
 
-        INIT(context);
+        INIT(ctxt);
 
         string command, comarg;
         bool showHelp = true;
@@ -51,19 +51,19 @@ namespace xrotor {
 
             userio::ASKC(" XROTOR", command, comarg);
 
-            context.GREEK = true;
+            ctxt.GREEK = true;
             if (command == "    ") continue;
             if (command == "?   ") {
                 showHelp = true;
                 continue;
             }
             if (command == "QUIT") return;
-            if (command == "OPER") xoper::OPER(context);
-            if (command == "BEND") xbend::bend(context);
-            if (command == "LOAD") xio::LOAD(context, comarg);
-            if (command == "NOIS") xnoise::noise(context);
-            if (command == "DISP") OUTPUT(context, cout);
-            else if (context.GREEK) {
+            if (command == "OPER") xoper::OPER(ctxt);
+            if (command == "BEND") xbend::bend(ctxt);
+            if (command == "LOAD") xio::LOAD(ctxt, comarg);
+            if (command == "NOIS") xnoise::noise(ctxt);
+            if (command == "DISP") OUTPUT(ctxt, cout);
+            else if (ctxt.GREEK) {
                 cout << command << " command not recognized.  Type a \"?\" for list" << endl;
             }
         }
@@ -72,106 +72,106 @@ namespace xrotor {
     /**
      * Initialize everything.
      *
-     * @param context
+     * @param ctxt
      */
-    void INIT(common::context &context) {
-        context.GREEK = false;
+    void INIT(common::context &ctxt) {
+        ctxt.GREEK = false;
 
         // XROTOR defaults
-        context.URDUCT = 1.0;
+        ctxt.URDUCT = 1.0;
 
-        SETDEF(context);
+        SETDEF(ctxt);
 
-        if (context.DUCT) {
+        if (ctxt.DUCT) {
             cout << "Aprop/Aexit initialized to 1.0" << endl;
-            context.URDUCT = 1.0;
+            ctxt.URDUCT = 1.0;
         }
 
-        context.XINF = 3.0;                             // r/R at which BC at infinity is applied
-        context.NN = 32;                                // number of perturbation potential harmonics
-        context.IINF = context.II + context.II / 2;     // number of discrete potential harmonic stations
-        context.CONV = false;                           // operating point solution existence flag
-        context.LSTRUCT = false;                         // indicates if structural properties are available
+        ctxt.XINF = 3.0;                             // r/R at which BC at infinity is applied
+        ctxt.NN = 32;                                // number of perturbation potential harmonics
+        ctxt.IINF = ctxt.II + ctxt.II / 2;     // number of discrete potential harmonic stations
+        ctxt.CONV = false;                           // operating point solution existence flag
+        ctxt.LSTRUCT = false;                         // indicates if structural properties are available
 
-        context.NAME = " ";
-        context.SAVIL = " ";
+        ctxt.NAME = " ";
+        ctxt.SAVIL = " ";
 
         // acceleration due to gravity for scaling centrifugal blade tension (m/s^2)
-        context.GEE = 9.81;
+        ctxt.GEE = 9.81;
 
         // ADW factor (multiplies TINV/PINV in ADW calculation)
-        context.ADWFCTR = 1.0;
+        ctxt.ADWFCTR = 1.0;
 
-        if (context.II   > common::IX) throw runtime_error("Array overflow.  IX too small");
-        if (context.IINF > common::JX) throw runtime_error("Array overflow.  JX too small");
+        if (ctxt.II   > common::IX) throw runtime_error("Array overflow.  IX too small");
+        if (ctxt.IINF > common::JX) throw runtime_error("Array overflow.  JX too small");
 
         // actual-rotor radius is always 1 (non-dimensionalized with itself)
-        context.XITIP = 1.0;
+        ctxt.XITIP = 1.0;
 
         // default nacelle, wake perturbation velocities (non-existent)
-        for (double &i : context.UBODY) i = 0;
+        for (double &i : ctxt.UBODY) i = 0;
 
         // no slipstream velocity profiles
-        context.NADD = 0;
+        ctxt.NADD = 0;
 
         // number of defined cases
-        context.NCASE = 0;
-        context.KCASE = 0;
+        ctxt.NCASE = 0;
+        ctxt.KCASE = 0;
 
         // max number of iterations for design, analysis
-        context.NITERD = 40;
-        context.NITERA = 40;
+        ctxt.NITERD = 40;
+        ctxt.NITERA = 40;
 
         // do not initialize rotor at each design cycle
-        context.LDESINI = false;
+        ctxt.LDESINI = false;
 
         // do initialize rotor at each design cycle
-        context.LOPRINI = true;
+        ctxt.LOPRINI = true;
 
         // no engine load line to start
-        context.LPWRVAR = false;
-        context.NPWRVAR = 0;
+        ctxt.LPWRVAR = false;
+        ctxt.NPWRVAR = 0;
         
         // no rotor yet
-        context.LROTOR = false;
-        for (int &i : context.IAERO) i = 0;
+        ctxt.LROTOR = false;
+        for (int &i : ctxt.IAERO) i = 0;
     }
 
     /**
      * Hard-wired start-up defaults
      *
-     * @param context
+     * @param ctxt
      */
-    void SETDEF(common::context &context) {
-        context.RAKE = 0.0;
+    void SETDEF(common::context &ctxt) {
+        ctxt.RAKE = 0.0;
 
-        context.VEL = 1.0;
-        context.ALT = 0.0;
-        ATMO(context.ALT, context.VSO, context.RHO, context.RMU); // sea level atmospheric conditions
+        ctxt.VEL = 1.0;
+        ctxt.ALT = 0.0;
+        ATMO(ctxt.ALT, ctxt.VSO, ctxt.RHO, ctxt.RMU); // sea level atmospheric conditions
 
         // install data into aero section #1
-        xaero::PUTAERO(context,
+        xaero::PUTAERO(ctxt,
                        1, 0, 0,                    // NAERO, xisect, a0
                        1.5, -0.5, 6.28, 0.1, 0.1,  // clmax, clmin, dclda, dclda_stall, dcl_stall
                        0.013, 0.5, 0.004,          // cdmin, cldmin, cdccdl2
                        -0.1, 0.8,                  // cmcon, mcrit
                        200000, -0.4);              // reref, rexp
-        for (int &i : context.IAERO) i = 1;
+        for (int &i : ctxt.IAERO) i = 1;
 
-        context.XPITCH = 0.3;           // x/c location of pitch axis
+        ctxt.XPITCH = 0.3;           // x/c location of pitch axis
 
-        context.II = 30;                // number of radial stations
-        context.INCR = 2;               // radial station increment for terminal OUTPUT
-        context.IXSPAC = 2;             // r/R spacing flag
+        ctxt.II = 30;                // number of radial stations
+        ctxt.INCR = 2;               // radial station increment for terminal OUTPUT
+        ctxt.IXSPAC = 2;             // r/R spacing flag
 
-        context.VRTX = false;           // Vortex Wake (true)           / Graded Momentum (false) flag
-        context.FAST = false;           // Graded momentum (true)       / Potential Formulation (false) flag
-        context.FREE = true;            // Self-deforming wake (true)   / Rigid-wake (false) flag
-        context.DUCT = false;           // Ducted (true)                / Free-tip (false) flag
+        ctxt.VRTX = false;           // Vortex Wake (true)           / Graded Momentum (false) flag
+        ctxt.FAST = false;           // Graded momentum (true)       / Potential Formulation (false) flag
+        ctxt.FREE = true;            // Self-deforming wake (true)   / Rigid-wake (false) flag
+        ctxt.DUCT = false;           // Ducted (true)                / Free-tip (false) flag
 
-        context.TERSE = false;          // TERSE-OUTPUT flag
+        ctxt.TERSE = false;          // TERSE-OUTPUT flag
 
-        context.LVNORM = true;          // flight speed used for normalization
+        ctxt.LVNORM = true;          // flight speed used for normalization
     }
 
     /**
@@ -269,70 +269,70 @@ namespace xrotor {
     /**
      * Re-initialize advance ratio and gammas.
      *
-     * @param context
+     * @param ctxt
      */
-    void REINIT(common::context &context) {
+    void REINIT(common::context &ctxt) {
         // estimate reasonable advance ratio to start iterative routines
-        int is = context.II / 2 + 1;
+        int is = ctxt.II / 2 + 1;
         // HHY had to set A0 to 0.0 as A0 is now section property
         double a0 = 0;
-        double ang = context.BETA[is] - a0;
+        double ang = ctxt.BETA[is] - a0;
 
-        double rpm = context.VEL / (context.RAD * context.ADV * common::PI / 30.);
+        double rpm = ctxt.VEL / (ctxt.RAD * ctxt.ADV * common::PI / 30.);
 
-        double adv0 = context.XI[is] * sin(ang) / cos(ang);
-        double rpm0 = context.VEL / (context.RAD * adv0 * common::PI / 30.);
+        double adv0 = ctxt.XI[is] * sin(ang) / cos(ang);
+        double rpm0 = ctxt.VEL / (ctxt.RAD * adv0 * common::PI / 30.);
 
         userio::ASKR("Enter initialization RPM?", rpm);
 
-        context.ADV = context.VEL / (rpm * context.RAD * common::PI / 30.);
-        context.ADV = max(0.1, context.ADV);
-        context.ADW = context.ADV;
+        ctxt.ADV = ctxt.VEL / (rpm * ctxt.RAD * common::PI / 30.);
+        ctxt.ADV = max(0.1, ctxt.ADV);
+        ctxt.ADW = ctxt.ADV;
 
         // Set the blade angle back to reference angle
         bool yes;
         userio::ASKL("Restore blade angles to original?", yes);
-        if (yes) copy(context.BETA, context.BETA + context.II, context.BETA0);
+        if (yes) copy(ctxt.BETA, ctxt.BETA + ctxt.II, ctxt.BETA0);
 
         // calculate current operating point
-        xoper::APER(context, 4, 2, true);
-        if (context.CONV) OUTPUT(context, cout);
+        xoper::APER(ctxt, 4, 2, true);
+        if (ctxt.CONV) OUTPUT(ctxt, cout);
     }
 
     /**
      * Fill stretched radial coordinate array X (and XV).
      *
-     * @param context
+     * @param ctxt
      */
-    void SETX(common::context &context) {
-        context.DT = 0.5 * common::PI / float(context.II);
-        double xm = context.XI0;
-        context.XV[0] = context.XI0;
+    void SETX(common::context &ctxt) {
+        ctxt.DT = 0.5 * common::PI / float(ctxt.II);
+        double xm = ctxt.XI0;
+        ctxt.XV[0] = ctxt.XI0;
 
         double tp, xp;
-        for (int i = 0; i < context.II; i++) {
-            context.T[i] = context.DT * (float(i) - 0.5);
-            tp           = context.DT * float(i);
+        for (int i = 0; i < ctxt.II; i++) {
+            ctxt.T[i] = ctxt.DT * (float(i) - 0.5);
+            tp           = ctxt.DT * float(i);
 
-            if (context.IXSPAC == 2) {
+            if (ctxt.IXSPAC == 2) {
                 // Usual sine stretching, adjusted for nonzero root radius
-                context.XI[0] = sqrt(
-                    context.XITIP * pow(sin(context.T[i]), 2) + pow(context.XI0 * cos(context.T[i]), 2));
+                ctxt.XI[0] = sqrt(
+                    ctxt.XITIP * pow(sin(ctxt.T[i]), 2) + pow(ctxt.XI0 * cos(ctxt.T[i]), 2));
                 xp           = sqrt(
-                    context.XITIP * pow(sin(tp          ), 2) + pow(context.XI0 * cos(tp          ), 2));
+                    ctxt.XITIP * pow(sin(tp          ), 2) + pow(ctxt.XI0 * cos(tp          ), 2));
             } else {
                 // Cosine stretching for more root resolution (also in TINVRT)
-                context.XI[0] = 0.5 * (1.0 - cos(2.0 * context.T[i])) * (context.XITIP - context.XI0) + context.XI0;
-                xp            = 0.5 * (1.0 - cos(2.0 * tp          )) * (context.XITIP - context.XI0) + context.XI0;
+                ctxt.XI[0] = 0.5 * (1.0 - cos(2.0 * ctxt.T[i])) * (ctxt.XITIP - ctxt.XI0) + ctxt.XI0;
+                xp            = 0.5 * (1.0 - cos(2.0 * tp          )) * (ctxt.XITIP - ctxt.XI0) + ctxt.XI0;
             }
 
-            context.XI[i] = (xp + xm) * 0.5;
-            context.DXI[i] = xp - xm;
+            ctxt.XI[i] = (xp + xm) * 0.5;
+            ctxt.DXI[i] = xp - xm;
 
             xm = xp;
-            context.XV[i+1] = xp;
+            ctxt.XV[i+1] = xp;
         }
-        context.XV[context.II + 1] = context.XITIP;
+        ctxt.XV[ctxt.II + 1] = ctxt.XITIP;
     }
 
     /**
@@ -390,40 +390,40 @@ namespace xrotor {
     /**
      * Dump everything to the FILE object identifying an output stream.
      *
-     * @param context
+     * @param ctxt
      * @param pFile     pointer to FILE object identifying output stream
      */
-    void OUTPUT(common::context &context, ostream &os) {
+    void OUTPUT(common::context &ctxt, ostream &os) {
         int iadd = 1;
-        if (&os == &cout) iadd = context.INCR;
+        if (&os == &cout) iadd = ctxt.INCR;
 
         fprintf(os, "%75s\n", string(75, '=').c_str());
-        if (!context.CONV) fprintf(os, "********** NOT CONVERGED **********\n");
+        if (!ctxt.CONV) fprintf(os, "********** NOT CONVERGED **********\n");
 
         bool lheli = false;
-        double fac1 = context.RHO * pow(context.VEL, 2) * pow(context.RAD, 2);
-        double fac2 = fac1 * context.VEL;
+        double fac1 = ctxt.RHO * pow(ctxt.VEL, 2) * pow(ctxt.RAD, 2);
+        double fac2 = fac1 * ctxt.VEL;
 
         // dimensional thrust, power, torque, rpm
-        double tdim = context.TTOT * fac1;
-        double qdim = context.QTOT * fac1 * context.RAD;
-        double pdim = context.PTOT * fac2 * context.RAD;
+        double tdim = ctxt.TTOT * fac1;
+        double qdim = ctxt.QTOT * fac1 * ctxt.RAD;
+        double pdim = ctxt.PTOT * fac2 * ctxt.RAD;
 
-        double tvdim = context.TVIS * fac1;
-        double pvdim = context.PVIS * fac2;
+        double tvdim = ctxt.TVIS * fac1;
+        double pvdim = ctxt.PVIS * fac2;
 
-        double efftot = context.TTOT / context.PTOT;
-        double rpm = context.VEL / (context.RAD * context.ADV * common::PI / 30.);
-        double dia = 2.0 * context.RAD;
+        double efftot = ctxt.TTOT / ctxt.PTOT;
+        double rpm = ctxt.VEL / (ctxt.RAD * ctxt.ADV * common::PI / 30.);
+        double dia = 2.0 * ctxt.RAD;
 
         // Nacelle (or body) thrust is difference between thrust on
         // equivalent prop and real prop
-        double tnacel = (context.TWAK - context.TINV) * fac1;
+        double tnacel = (ctxt.TWAK - ctxt.TINV) * fac1;
 
         // blade solidity
-        spline::SPLINE(context.CH, context.W1, context.XI, context.II);
-        double ch34 = spline::SEVAL(0.75, context.CH, context.W1, context.XI, context.II);
-        double sigma = float(context.NBLDS) * ch34 / common::PI;
+        spline::SPLINE(ctxt.CH, ctxt.W1, ctxt.XI, ctxt.II);
+        double ch34 = spline::SEVAL(0.75, ctxt.CH, ctxt.W1, ctxt.XI, ctxt.II);
+        double sigma = float(ctxt.NBLDS) * ch34 / common::PI;
 
         // standard coefficients based on forward speed
         double tc = tdim / (0.5 * fac1);
@@ -431,11 +431,11 @@ namespace xrotor {
 
         // standard coefficients based on rotational speed
         double en = rpm / 60.;
-        double ct = tdim / (context.RHO * pow(en, 2) * pow(dia, 4));
-        double cp = pdim / (context.RHO * pow(en, 3) * pow(dia, 5));
+        double ct = tdim / (ctxt.RHO * pow(en, 2) * pow(dia, 4));
+        double cp = pdim / (ctxt.RHO * pow(en, 3) * pow(dia, 5));
 
         // induced efficiency (including nacelle thrust effect)
-        double effind = context.TWAK / context.PWAK;
+        double effind = ctxt.TWAK / ctxt.PWAK;
 
         // ideal (actuator disk) efficiency
         double tclim = max(-1.0, tc);
@@ -443,8 +443,8 @@ namespace xrotor {
 
         double cth, cph, ctos, fom;
         // define low advance ratio (helicopter?) related data
-        if (context.ADV < 0.1) {
-            spline::SPLINE(context.CH, context.W1, context.XI, context.II);
+        if (ctxt.ADV < 0.1) {
+            spline::SPLINE(ctxt.CH, ctxt.W1, ctxt.XI, ctxt.II);
             cth = ct / 7.7516;
             cph = cp / 24.352;
             ctos = cth / sigma;
@@ -452,41 +452,41 @@ namespace xrotor {
             lheli = true;
         }
 
-        if (context.DUCT) {
-            switch (context.IWTYP) {
+        if (ctxt.DUCT) {
+            switch (ctxt.IWTYP) {
                 case 1:
                 case 3: fprintf(os, " Ducted Graded Mom. Formulation Solution:  ");
                 case 2: fprintf(os, " Ducted Potential Formulation Solution:  ");
                 default:;
             }
         } else {
-            switch (context.IWTYP) {
+            switch (ctxt.IWTYP) {
                 case 1: fprintf(os, " Free Tip Graded Mom. Formulation Solution:  ");
                 case 2: fprintf(os, " Free Tip Potential Formulation Solution:  ");
                 case 3: fprintf(os, " Free Tip Vortex Wake Formulation Solution:  ");
                 default:;
             }
         }
-        fprintf(os, "%32s\n", context.NAME.c_str());
+        fprintf(os, "%32s\n", ctxt.NAME.c_str());
 
-        if (context.NADD > 1) {
-            fprintf(os, " (External slipstream present)%19sWake ADV. ratio:%11.5f\n", "", context.ADW);
-        } else if (context.DUCT) {
-            fprintf(os, " Vdisk/Vslip:%11.5f%25sWake ADV. ratio:%11.5f\n", context.URDUCT, "", context.ADW);
+        if (ctxt.NADD > 1) {
+            fprintf(os, " (External slipstream present)%19sWake ADV. ratio:%11.5f\n", "", ctxt.ADW);
+        } else if (ctxt.DUCT) {
+            fprintf(os, " Vdisk/Vslip:%11.5f%25sWake ADV. ratio:%11.5f\n", ctxt.URDUCT, "", ctxt.ADW);
         } else {
-            fprintf(os, "%50sWake ADV. ratio:%11.5f\n", "", context.ADW);
+            fprintf(os, "%50sWake ADV. ratio:%11.5f\n", "", ctxt.ADW);
         }
 
-        if (context.ADW < 0.5*context.ADV)
+        if (ctxt.ADW < 0.5*ctxt.ADV)
             fprintf(os, " Reverse far-slipstream velocity implied. Interpret results carefully !");
 
-        fprintf(os, " no. blades :%3i   %9sradius(m)  :%9.4F %4sadv. ratio: %11.5F\n", context.NBLDS, "", context.RAD, "", context.ADV);
+        fprintf(os, " no. blades :%3i   %9sradius(m)  :%9.4F %4sadv. ratio: %11.5F\n", ctxt.NBLDS, "", ctxt.RAD, "", ctxt.ADV);
         fprintf(os, " thrust(N)  :%11.3G%4spower(W)   :%11.3G%3storque(N-m):%11.3G\n", tdim, "", pdim, "", qdim);
-        fprintf(os, " Efficiency :%8.3F %6sspeed(m/s) :%9.3F %4srpm        :%11.3F\n", efftot, "", context.VEL, "", rpm);
+        fprintf(os, " Efficiency :%8.3F %6sspeed(m/s) :%9.3F %4srpm        :%11.3F\n", efftot, "", ctxt.VEL, "", rpm);
         fprintf(os, " Eff induced:%8.4F %6sEff ideal  :%9.4F %4sTcoef      :%11.4F\n", effind, "", eideal, "", tc);
-        fprintf(os, " Tnacel(N)  :%11.4F%4shub RAD.(m):%9.4F %4sdisp. RAD. :%10.4F\n", tnacel, "", context.XI0 * context.RAD, "", context.XW0 * context.RAD);
+        fprintf(os, " Tnacel(N)  :%11.4F%4shub RAD.(m):%9.4F %4sdisp. RAD. :%10.4F\n", tnacel, "", ctxt.XI0 * ctxt.RAD, "", ctxt.XW0 * ctxt.RAD);
         fprintf(os, " Tvisc(N)   :%11.4F%4sPvisc(W)   :%11.3G\n",                      tvdim, "", pvdim);
-        fprintf(os, " RHO(kg/m3) :%10.5F%5sVsound(m/s):%9.3F %4smu(kg/m-s) :%11.4E\n", context.RHO, "", context.VSO, "", context.RMU);
+        fprintf(os, " RHO(kg/m3) :%10.5F%5sVsound(m/s):%9.3F %4smu(kg/m-s) :%11.4E\n", ctxt.RHO, "", ctxt.VSO, "", ctxt.RMU);
         fprintf(os, " %75s\n", string(75, '-').c_str());
 
         // low advance ratio (helicopter?) data
@@ -497,16 +497,16 @@ namespace xrotor {
         }
 
         // coefficients based on rotational speed
-        fprintf(os, "%12s    Ct:%11.5F     Cp:%11.5F    J:%11.5F", "", ct, cp, context.ADV * common::PI);
+        fprintf(os, "%12s    Ct:%11.5F     Cp:%11.5F    J:%11.5F", "", ct, cp, ctxt.ADV * common::PI);
         // coefficients based on forward speed
-        fprintf(os, "%12s    Tc:%11.5F     Pc:%11.5F  ADV:%11.5F", "", tc, pc, context.ADV);
+        fprintf(os, "%12s    Tc:%11.5F     Pc:%11.5F  ADV:%11.5F", "", tc, pc, ctxt.ADV);
 
-        if (context.TERSE) return;
+        if (ctxt.TERSE) return;
 
         // find maximum RE on blade
         double remax = 0.0;
-        for (int i = 0; i < context.II; i++) {
-            remax = max(context.RE[i], remax);
+        for (int i = 0; i < ctxt.II; i++) {
+            remax = max(ctxt.RE[i], remax);
         }
         double reexp = 1.0;
         if (remax >= 1.0e6) {
@@ -527,19 +527,19 @@ namespace xrotor {
                si, si_va, w, w_adv, w_vt, w_va, phi, p_adv, p_vt, p_va;
         double mach, bdeg, xre;
         char schar[1] = {' '};
-        for (int i = 0; i < context.II; i += iadd) {
+        for (int i = 0; i < ctxt.II; i += iadd) {
             // use equivalent prop to define local efficiency
-            UVADD(context, context.XI[i], wa, wt);
-            vw = context.VWAK[i];
-            vaw = vw * context.XW[i] / context.ADW;
+            UVADD(ctxt, ctxt.XI[i], wa, wt);
+            vw = ctxt.VWAK[i];
+            vaw = vw * ctxt.XW[i] / ctxt.ADW;
             // Freestream velocity component on equiv prop
-            utotw = context.URDUCT;
-            cw = context.XI[i] / context.ADV - wt - vw;
+            utotw = ctxt.URDUCT;
+            cw = ctxt.XI[i] / ctxt.ADV - wt - vw;
             sw = utotw                       + wa - vaw;
-            effi = (cw / sw)                 * context.ADV / context.XW[i];
+            effi = (cw / sw)                 * ctxt.ADV / ctxt.XW[i];
 
             // use real prop to define Mach number
-            xoper::CSCALC(context,
+            xoper::CSCALC(ctxt,
                           i, utot, wa, wt,
                           vt, vt_adw,
                           va, va_adw,
@@ -549,36 +549,36 @@ namespace xrotor {
                           w, w_adv, w_vt, w_va,
                           phi, p_adv, p_vt, p_va);
 
-            mach = w * context.VEL / context.VSO;
+            mach = w * ctxt.VEL / ctxt.VSO;
 
-            bdeg = context.BETA[i] * 180. / common::PI;
-            xre = context.RE[i] / (pow(10., reexp));
+            bdeg = ctxt.BETA[i] * 180. / common::PI;
+            xre = ctxt.RE[i] / (pow(10., reexp));
 
             schar[0] = ' ';
-            if (context.STALL[i]) schar[0] = 'S';
+            if (ctxt.STALL[i]) schar[0] = 'S';
 
             fprintf(os, " %2i%6.3F%7.4F%7.2F%7.3F %1s%7.4F %6.2F %6.3F %6.3F%6.3F%8.3F\n",
-                i, context.XI[i], context.CH[i], bdeg, context.CL[i], schar, context.CD[i], xre, mach,
-                effi, context.EFFP[i], context.UBODY[i]);
+                i, ctxt.XI[i], ctxt.CH[i], bdeg, ctxt.CL[i], schar, ctxt.CD[i], xre, mach,
+                effi, ctxt.EFFP[i], ctxt.UBODY[i]);
         }
     }
 
     /**
-     * @param context
+     * @param ctxt
      * @param xiw
      * @param wa
      * @param wt
      */
-    void UVADD(common::context &context, double xiw, double &wa, double &wt) {
+    void UVADD(common::context &ctxt, double xiw, double &wa, double &wt) {
         wa = 0;
         wt = 0;
 
-        if (context.NADD <= 1) return;
+        if (ctxt.NADD <= 1) return;
 
-        double rdim = xiw * context.RAD;
-        if (rdim >= context.RADD[0] and rdim <= context.RADD[context.NADD-1]) {
-            wa = spline::SEVAL(rdim, context.UADD, context.UADDR, context.RADD, context.NADD) / context.VEL;
-            wt = spline::SEVAL(rdim, context.VADD, context.VADDR, context.RADD, context.NADD) / context.VEL;
+        double rdim = xiw * ctxt.RAD;
+        if (rdim >= ctxt.RADD[0] and rdim <= ctxt.RADD[ctxt.NADD-1]) {
+            wa = spline::SEVAL(rdim, ctxt.UADD, ctxt.UADDR, ctxt.RADD, ctxt.NADD) / ctxt.VEL;
+            wt = spline::SEVAL(rdim, ctxt.VADD, ctxt.VADDR, ctxt.RADD, ctxt.NADD) / ctxt.VEL;
         }
     }
 }

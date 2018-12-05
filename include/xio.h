@@ -12,7 +12,7 @@ using namespace std;
 #include <common.h>
 
 namespace xio {
-    void LOAD(common::context &context, string fname1);
+    void LOAD(common::context &ctxt, string fname1);
     void RDLINE(ifstream &ifs, string &line);
     bool READ(ifstream &ifs, string &line, const char *fmt, int n, ...);
 }

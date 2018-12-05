@@ -106,7 +106,7 @@ namespace common {
      * @param format    format string
      * @param ...       arguments to the format string
      */
-    void fprintf(ostream& os, const char* format, ...) {
+    void fprintf(ostream &os, const char* format, ...) {
         va_list argv;
         va_start(argv, format);
         char buff[1024];

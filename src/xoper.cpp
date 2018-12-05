@@ -21,16 +21,16 @@ namespace xoper {
     /**
      * Run rotor at arbitrary operating points.
      *
-     * @param context
+     * @param ctxt
      */
-    void OPER(common::context &context) {
+    void OPER(common::context &ctxt) {
         double plfac1 = 0.7;
         double plfac2 = 0.8;
         double plfacd = 0.6;
         double xorg = 0.15;
         double yorg = 0.10;
 
-        context.GREEK = false;
+        ctxt.GREEK = false;
 
         bool error;
         int ninput;
@@ -89,19 +89,19 @@ namespace xoper {
 
                  if (command == "    ") return;
             else if (command == "?   ") {showHelp = true; continue;}
-            else if (command == "FORM") commands::FORM(context);    // goto 2
+            else if (command == "FORM") commands::FORM(ctxt);    // goto 2
 //            else if (command == "TERS") commands::TERS(context);    // goto 4
-            else if (command == "DISP") commands::DISP(context);    // goto 10
+            else if (command == "DISP") commands::DISP(ctxt);    // goto 10
 //            else if (command == "NAME") commands::NAME(context);    // goto 15
-            else if (command == "WRIT") commands::WRIT(context, comarg);    // goto 20
+            else if (command == "WRIT") commands::WRIT(ctxt, comarg);    // goto 20
 //            else if (command == "DUCT") commands::DUCT(context);    // goto 22
 //            else if (command == "VRAT") commands::VRAT(context);    // goto 24
 //            else if (command == "ATMO") commands::ATMO(context);    // goto 35
 //            else if (command == "VELO") commands::VELO(context);    // goto 38
 //            else if (command == "ANGL") commands::ANGL(context);    // goto 40
 //            else if (command == "ADVA") commands::ADVA(context);    // goto 42
-            else if (command == "RPM ") commands::RPM (context, ninput, rinput);    // goto 45
-            else if (command == "THRU") commands::THRU(context, ninput, rinput);    // goto 50
+            else if (command == "RPM ") commands::RPM (ctxt, ninput, rinput);    // goto 45
+            else if (command == "THRU") commands::THRU(ctxt, ninput, rinput);    // goto 50
 //            else if (command == "TORQ") commands::TORQ(context);    // goto 60
 //            else if (command == "POWE") commands::POWE(context);    // goto 70
 //            else if (command == "ASEQ") commands::ASEQ(context);    // goto 81
@@ -115,7 +115,7 @@ namespace xoper {
 //            else if (command == "CASE") commands::CASE(context);    // goto 97
 //            else if (command == "LIST") commands::LIST(context);    // goto 98
 //            else if (command == "N   ") commands::N   (context);    // goto 72
-            else if (command == "ITER") commands::ITER(context, ninput, iinput);    // goto 75
+            else if (command == "ITER") commands::ITER(ctxt, ninput, iinput);    // goto 75
 //            else if (command == "INIT") commands::INIT(context);    // goto 76
 //            else if (command == "REIN") commands::REIN(context);    // goto 78
             else {
@@ -127,9 +127,9 @@ namespace xoper {
     namespace commands {
         /**
          * Select options for slipstream and velocity calculation.
-         * @param context
+         * @param ctxt
          */
-        void FROM(common::context& context) {
+        void FROM(common::context &ctxt) {
             string command, comarg;
             while (true) {
                 printf(
@@ -140,104 +140,104 @@ namespace xoper {
                     "\n   WAKE     Toggle between rigid and self-deforming wake");
 
                 userio::ASKC(".FORM", command, comarg);
-                     if (command == "GRAD") {context.VRTX = false; context.FAST = true;}
-                else if (command == "POT ") {context.VRTX = false; context.FAST = false;}
-                else if (command == "VRTX") {context.VRTX = true;}
-                else if (command == "WAKE") {context.FREE = !context.FREE;}
+                     if (command == "GRAD") {ctxt.VRTX = false; ctxt.FAST = true;}
+                else if (command == "POT ") {ctxt.VRTX = false; ctxt.FAST = false;}
+                else if (command == "VRTX") {ctxt.VRTX = true;}
+                else if (command == "WAKE") {ctxt.FREE = !ctxt.FREE;}
                 else if (command == "    ") {return;}
 
-                if (context.VRTX) printf("Discrete Vortex Formulation selected\n");
-                else if (context.FAST) printf("Graded Momentum Formulation selected\n");
+                if (ctxt.VRTX) printf("Discrete Vortex Formulation selected\n");
+                else if (ctxt.FAST) printf("Graded Momentum Formulation selected\n");
                 else printf("Potential Formulation selected\n");
 
-                if (context.FREE) printf("Self-deforming wake selected");
+                if (ctxt.FREE) printf("Self-deforming wake selected");
                 else printf("Rigid wake selected");
             }
         }
 
         /**
          * Display current prop operating point data.
-         * @param context
+         * @param ctxt
          */
-        void DISP(common::context& context) {
-            xrotor::OUTPUT(context, cout);
+        void DISP(common::context &ctxt) {
+            xrotor::OUTPUT(ctxt, cout);
         }
 
         /**
          * Write current prop operating point data to file
-         * @param context
+         * @param ctxt
          * @param fName         filename
          */
-        void WRIT(common::context& context, string fName) {
-            if (fName[0] != ' ') context.SAVIL = fName;
+        void WRIT(common::context &ctxt, string fName) {
+            if (fName[0] != ' ') ctxt.SAVIL = fName;
             ofstream ofs;
-            xrotor::OPFILE(ofs, context.SAVIL);
-            xrotor::OUTPUT(context, ofs);
+            xrotor::OPFILE(ofs, ctxt.SAVIL);
+            xrotor::OUTPUT(ctxt, ofs);
             ofs.close();
         }
 
         /**
          * Specify RPM and solve.
-         * @param context
+         * @param ctxt
          * @param ninput        number of input arguments passed to RPM
          * @param rinput        list of input arguments passed to RPM
          */
-        void RPM(common::context& context, int ninput, vector<double> rinput) {
+        void RPM(common::context &ctxt, int ninput, vector<double> rinput) {
             double rpm;
             if (ninput >= 1) {
                 rpm = rinput[0];
             } else {
-                rpm = context.VEL / (context.RAD * context.ADV * common::PI / 30.);
+                rpm = ctxt.VEL / (ctxt.RAD * ctxt.ADV * common::PI / 30.);
                 userio::ASKR("rpm               ", rpm);
             }
-            context.ADV = context.VEL / (context.RAD * rpm * common::PI / 30.);
-            context.CONV = false;
-            APER(context, 4, 2, context.LOPRINI);
-            if (context.CONV) xrotor::OUTPUT(context, cout);
+            ctxt.ADV = ctxt.VEL / (ctxt.RAD * rpm * common::PI / 30.);
+            ctxt.CONV = false;
+            APER(ctxt, 4, 2, ctxt.LOPRINI);
+            if (ctxt.CONV) xrotor::OUTPUT(ctxt, cout);
         }
 
         /**
          * Specify thrust and solve.
-         * @param context
+         * @param ctxt
          * @param ninput        number of input arguments passed to THRU
          * @param rinput        list of input arguments passed to THRU
          */
-        void THRU(common::context& context, int ninput, vector<double> rinput) {
+        void THRU(common::context &ctxt, int ninput, vector<double> rinput) {
             if (ninput >= 1) {
-                context.TSPEC = rinput[0];
+                ctxt.TSPEC = rinput[0];
             } else {
-                context.TSPEC = context.TTOT * context.RHO * pow(context.VEL, 2) * pow(context.RAD, 2);
-                userio::ASKR("thrust (N)        ", context.TSPEC);
+                ctxt.TSPEC = ctxt.TTOT * ctxt.RHO * pow(ctxt.VEL, 2) * pow(ctxt.RAD, 2);
+                userio::ASKR("thrust (N)        ", ctxt.TSPEC);
             }
-            double rpm = context.VEL / (context.RAD * context.ADV * common::PI / 30.);
+            double rpm = ctxt.VEL / (ctxt.RAD * ctxt.ADV * common::PI / 30.);
             printf("\n Current rpm:%9.2f", rpm);
             string ans, ansarg;
             while (ans != "R   " and ans != "P   " ) {
                 userio::ASKC("fix Pitch / fix Rpm ( P/R )?", ans, ansarg);
             }
 
-            context.CONV = false;
-            double bsav = context.BETA[context.II-1];
-            if (ans == "P   ") APER(context, 1, 2, context.LOPRINI);
+            ctxt.CONV = false;
+            double bsav = ctxt.BETA[ctxt.II-1];
+            if (ans == "P   ") APER(ctxt, 1, 2, ctxt.LOPRINI);
             else {
                 userio::ASKR("rpm:", rpm);
-                context.ADV = context.VEL / (context.RAD * rpm * common::PI / 30.);
-                APER(context, 1, 1, context.LOPRINI);
+                ctxt.ADV = ctxt.VEL / (ctxt.RAD * rpm * common::PI / 30.);
+                APER(ctxt, 1, 1, ctxt.LOPRINI);
             }
 
-            if (context.CONV) {
-                xrotor::OUTPUT(context, cout);
+            if (ctxt.CONV) {
+                xrotor::OUTPUT(ctxt, cout);
             }
             // Check for valid blade angle change
             if (ans != "P   ") {
-                if (context.CONV) {
+                if (ctxt.CONV) {
                     // convergence was achieved: show blade angle change incurred
-                    printf(" Blade angle changed %7.3f degrees", context.DBETA * 180. / common::PI);
+                    printf(" Blade angle changed %7.3f degrees", ctxt.DBETA * 180. / common::PI);
                 } else {
                     // convergence failed: restore clobbered blade angles
-                    for (int i = 0; i < context.II; i++) {
-                        context.BETA[i] -= context.DBETA;
-                        context.BETA0[i] -= context.DBETA;
+                    for (int i = 0; i < ctxt.II; i++) {
+                        ctxt.BETA[i] -= ctxt.DBETA;
+                        ctxt.BETA0[i] -= ctxt.DBETA;
                     }
                 }
             }
@@ -245,15 +245,15 @@ namespace xoper {
 
         /**
          * Set max number or iterations for nonlinear solution
-         * @param context
+         * @param ctxt
          * @param ninput        number of input arguments passed to ITER
          * @param iinput        list of input arguments passed to ITER
          */
-        void ITER(common::context& context, int ninput, vector<int> iinput) {
+        void ITER(common::context &ctxt, int ninput, vector<int> iinput) {
             if (ninput >= 1) {
-                context.NITERA = iinput[0];
+                ctxt.NITERA = iinput[0];
             } else {
-                userio::ASKI("Max number of iterations", context.NITERA);
+                userio::ASKI("Max number of iterations", ctxt.NITERA);
             }
         }
     }
@@ -261,20 +261,20 @@ namespace xoper {
     /**
      * Set reasonable initial circulation and converge arbitrary operating point.
      *
-     * @param context
+     * @param ctxt
      * @param ispec, icon   @see[xoper::apiter()]
      * @param linit         flag for initialization of rotor conditions
      */
-    void APER(common::context &context, unsigned short ispec, unsigned short icon, bool linit) {
+    void APER(common::context &ctxt, unsigned short ispec, unsigned short icon, bool linit) {
         // Initialize circulations if requested
-        if (linit) APINIT(context);
+        if (linit) APINIT(ctxt);
 
-        APITER(context, ispec, icon);
+        APITER(ctxt, ispec, icon);
 
-        if (!context.CONV) {
+        if (!ctxt.CONV) {
             cout << endl;
             cout << "Iteration limit exceeded" << endl;
-            cout << "Gres Fres Ares = " << context.GRESMX << " " << context.FRESMX << " " << context.ARESMX << endl;
+            cout << "Gres Fres Ares = " << ctxt.GRESMX << " " << ctxt.FRESMX << " " << ctxt.ARESMX << endl;
         }
     }
 
@@ -286,56 +286,56 @@ namespace xoper {
      * from graded momentum theory to converge an approximate
      * wake advance ratio.
      *
-     * @param context
+     * @param ctxt
      */
-    void APINIT(common::context &context) {
+    void APINIT(common::context &ctxt) {
         const unsigned niterg = 10;
 
-        double blds = (float) context.NBLDS;
-        context.DBETA = 0.0;
+        double blds = (float) ctxt.NBLDS;
+        ctxt.DBETA = 0.0;
 
         double uduct     = 0.0;
         double vaduct_va;
-        if (context.DUCT) {
-            uduct     = context.URDUCT - 1;
+        if (ctxt.DUCT) {
+            uduct     = ctxt.URDUCT - 1;
         }
-        context.ADW = context.ADV * (1.0 + uduct);
+        ctxt.ADW = ctxt.ADV * (1.0 + uduct);
 
         // ==========================================================
         // Initialize section circulation neglecting induced velocity
         double tsum = 0.;
         double utot, wa, wt, si, ci, wsq, w, phi, alfa, rey;
         double cl_al, cl_w, clmax, clmin, dclstall, cd_alf, cd_w, cd_rey, cm_al, cm_w;
-        for (int i = 0; i < context.II; i++) {
-            utot = context.URDUCT + context.UBODY[i];
-            xrotor::UVADD(context, context.XI[i], wa, wt);
+        for (int i = 0; i < ctxt.II; i++) {
+            utot = ctxt.URDUCT + ctxt.UBODY[i];
+            xrotor::UVADD(ctxt, ctxt.XI[i], wa, wt);
 
             si = utot                        + wa;
-            ci = context.XI[i] / context.ADV - wt;
+            ci = ctxt.XI[i] / ctxt.ADV - wt;
 
             wsq = ci*ci + si*si;
             w = sqrt(wsq);
             phi = atan2(si, ci);
 
-            alfa = context.BETA[i] - phi;
-            rey = context.CH[i] * abs(w) * context.RHO * context.VEL * context.RAD / context.RMU;
-            xaero::GETCLCDCM(context, i, alfa, w, rey,
-                             context.CL[i], cl_al, cl_w,
-                             clmax, clmin, dclstall, context.STALL[i],
-                             context.CD[i], cd_alf, cd_w, cd_rey,
-                             context.CM[i], cm_al, cm_w);
+            alfa = ctxt.BETA[i] - phi;
+            rey = ctxt.CH[i] * abs(w) * ctxt.RHO * ctxt.VEL * ctxt.RAD / ctxt.RMU;
+            xaero::GETCLCDCM(ctxt, i, alfa, w, rey,
+                             ctxt.CL[i], cl_al, cl_w,
+                             clmax, clmin, dclstall, ctxt.STALL[i],
+                             ctxt.CD[i], cd_alf, cd_w, cd_rey,
+                             ctxt.CM[i], cm_al, cm_w);
 
-            context.GAM[i] = 0.5 * context.CL[i] * w * context.CH[i];
-            tsum += blds * context.GAM[i] * ci * context.DXI[i];
+            ctxt.GAM[i] = 0.5 * ctxt.CL[i] * w * ctxt.CH[i];
+            tsum += blds * ctxt.GAM[i] * ci * ctxt.DXI[i];
         }
 
         // use momentum theory estimate of axial velocity to set wake ADV. ratio
         double vhsq = 0.5 * tsum / common::PI;
         vhsq = max(vhsq, -0.25);
-        context.ADW = context.ADV * 0.5 * (1.0 + sqrt(1.0 + 4.0 * vhsq));
+        ctxt.ADW = ctxt.ADV * 0.5 * (1.0 + sqrt(1.0 + 4.0 * vhsq));
 
         // recalculate Vtan using new GAM values
-        VCALC(context);
+        VCALC(ctxt);
         // ==========================================================
 
         // ===============================================================
@@ -345,10 +345,10 @@ namespace xoper {
         double t_adw, dclmax, rlxmin, vt, vt_gam, vt_adw, va, va_gam, va_adw;
         double ci_adv, ci_vt, si_va, w_adv, w_vt, w_va, p_adv, p_vt, p_va, al_vt, al_va;
         double rez, z_cl, z_w, z_g, z_al, z_vt, z_va, z_adw, delg, dcl;
-        double rlx, g_adw, cosr, t_g, t_vt, vhsq_t;
+        double g_adw, cosr, t_g, t_vt, vhsq_t;
         for (int iterg = 0; iterg < niterg; iterg++) {
-            GRADMO(context.II, context.NBLDS, context.DUCT, context.RAKE,
-                   context.XI, context.XV, context.GAM, context.ADW, context.VIND_GAM, context.VIND_ADW);
+            GRADMO(ctxt.II, ctxt.NBLDS, ctxt.DUCT, ctxt.RAKE,
+                   ctxt.XI, ctxt.XV, ctxt.GAM, ctxt.ADW, ctxt.VIND_GAM, ctxt.VIND_ADW);
 
             tsum = 0;
             t_adw = 0;
@@ -356,29 +356,29 @@ namespace xoper {
             dclmax = 0;
             rlxmin = 0;
 
-            for (int i = 0; i < context.II; i++) {
+            for (int i = 0; i < ctxt.II; i++) {
                 // Redefine VT and VA to diagonal self-influences
-                vt     = context.VIND_GAM[2][i][i] * context.GAM[i];
-                vt_gam = context.VIND_GAM[2][i][i];
-                vt_adw = context.VIND_ADW[2][i];
+                vt     = ctxt.VIND_GAM[2][i][i] * ctxt.GAM[i];
+                vt_gam = ctxt.VIND_GAM[2][i][i];
+                vt_adw = ctxt.VIND_ADW[2][i];
 
-                va     = context.VIND_GAM[0][i][i] * context.GAM[i];
-                va_gam = context.VIND_GAM[0][i][i];
-                va_adw = context.VIND_ADW[0][i];
+                va     = ctxt.VIND_GAM[0][i][i] * ctxt.GAM[i];
+                va_gam = ctxt.VIND_GAM[0][i][i];
+                va_adw = ctxt.VIND_ADW[0][i];
 
                 // include duct effect on freestream and induced axial velocity
                 uduct = 0.0;
                 vaduct_va      = 1.0;
-                if (context.DUCT) {
-                    uduct = context.URDUCT - 1.0;
-                    vaduct_va = 2.0 * context.URDUCT;
+                if (ctxt.DUCT) {
+                    uduct = ctxt.URDUCT - 1.0;
+                    vaduct_va = 2.0 * ctxt.URDUCT;
                 }
 
-                utot = 1.0 + uduct + context.UBODY[i];
-                xrotor::UVADD(context, context.XI[i], wa, wt);
+                utot = 1.0 + uduct + ctxt.UBODY[i];
+                xrotor::UVADD(ctxt, ctxt.XI[i], wa, wt);
 
-                ci     =  context.XI[i] / context.ADV - wt - vt;
-                ci_adv = -context.XI[i] / pow(context.ADV, 2);
+                ci     =  ctxt.XI[i] / ctxt.ADV - wt - vt;
+                ci_adv = -ctxt.XI[i] / pow(ctxt.ADV, 2);
                 ci_vt  = - 1.0;
 
                 si     = utot + wa + va * vaduct_va;
@@ -395,21 +395,21 @@ namespace xoper {
                 p_vt  = (            - si * ci_vt ) / wsq;
                 p_va  = (ci * si_va               ) / wsq;
 
-                alfa  = context.BETA[i] - phi;
+                alfa  = ctxt.BETA[i] - phi;
                 al_vt =                 - p_vt;
                 al_va =                 - p_va;
 
-                rey = context.CH[i] * abs(w) * context.RHO * context.VEL * context.RAD / context.RMU;
-                xaero::GETCLCDCM(context, i, alfa, w, rey,
-                                 context.CL[i], cl_al, cl_w,
-                                 clmax, clmin, dclstall, context.STALL[i],
-                                 context.CD[i], cd_alf, cd_w, cd_rey,
-                                 context.CM[i], cm_al, cm_w);
+                rey = ctxt.CH[i] * abs(w) * ctxt.RHO * ctxt.VEL * ctxt.RAD / ctxt.RMU;
+                xaero::GETCLCDCM(ctxt, i, alfa, w, rey,
+                                 ctxt.CL[i], cl_al, cl_w,
+                                 clmax, clmin, dclstall, ctxt.STALL[i],
+                                 ctxt.CD[i], cd_alf, cd_w, cd_rey,
+                                 ctxt.CM[i], cm_al, cm_w);
 
                 // Res( CL( AL W ) , W , GAM )
-                rez   = context.CH[i] * context.CL[i] * w - 2.0 * context.GAM[i];
-                z_cl  = context.CH[i]                 * w;
-                z_w   = context.CH[i] * context.CL[i];
+                rez   = ctxt.CH[i] * ctxt.CL[i] * w - 2.0 * ctxt.GAM[i];
+                z_cl  = ctxt.CH[i]                 * w;
+                z_w   = ctxt.CH[i] * ctxt.CL[i];
                 z_g   =                                   - 2.0;
 
                 // Res( AL( VT ADW ) , W( VT ADW ) , GAM )
@@ -425,25 +425,25 @@ namespace xoper {
                 z_g   = z_vt * vt_gam + z_va * va_gam + z_g;
 
                 delg = -rez / z_g;
-                dcl = 2.0 * delg / (context.CH[i] * w);
+                dcl = 2.0 * delg / (ctxt.CH[i] * w);
 
                 // Apply limiter to GAM update based on CL change
-                rlx = 1.0;
-                if (rlx * abs(dcl) > 0.2) rlx = min(rlx, 0.2 / abs(dcl));
+                ctxt.RLX = 1.0;
+                if (ctxt.RLX * abs(dcl) > 0.2) ctxt.RLX = min(ctxt.RLX, 0.2 / abs(dcl));
 
                 if (abs(dcl) > abs(dclmax)) dclmax = dcl;
-                if (abs(rlx) < rlxmin)      rlxmin = rlx;
+                if (abs(ctxt.RLX) < rlxmin)      rlxmin = ctxt.RLX;
 
-                context.GAM[i] += rlx * delg;
+                ctxt.GAM[i] += ctxt.RLX * delg;
                 // dREZ = Z_G*dG + Z_ADW*dADW = 0
                 g_adw = -z_adw / z_g;
 
                 // Forces for raked blade corrected for COS of rake angle
                 cosr = 1.0;
 
-                tsum  += blds * context.GAM[i] * ci      * context.DXI[i] * cosr;
-                t_g    = blds                  * ci      * context.DXI[i] * cosr;
-                t_vt   = blds * context.GAM[i] * ci * vt * context.DXI[i] * cosr;
+                tsum  += blds * ctxt.GAM[i] * ci      * ctxt.DXI[i] * cosr;
+                t_g    = blds                  * ci      * ctxt.DXI[i] * cosr;
+                t_vt   = blds * ctxt.GAM[i] * ci * vt * ctxt.DXI[i] * cosr;
                 t_adw += (t_g + t_vt * vt_gam) * g_adw
                         +       t_vt * vt_adw;
             }
@@ -453,16 +453,16 @@ namespace xoper {
             vhsq   = max(vhsq, -0.2499);
             vhsq_t = 0.5        / common::PI;
 
-            rez    = context.ADW - context.ADV  * 0.5 * (1.0            + sqrt(1.0 + 4.0 * vhsq));
-            z_adw  = 1.0         - context.ADV / sqrt(1.0 + 4.0 * vhsq) * vhsq_t * t_adw;
+            rez    = ctxt.ADW - ctxt.ADV  * 0.5 * (1.0            + sqrt(1.0 + 4.0 * vhsq));
+            z_adw  = 1.0         - ctxt.ADV / sqrt(1.0 + 4.0 * vhsq) * vhsq_t * t_adw;
             if (z_adw == 0) cout << "APRINT Z_ADW " << z_adw << endl;
 
-            context.DADW = -rez / z_adw;
-            context.DADW = min(context.DADW, 10.0 * context.ADW);
-            context.DADW = max(context.DADW, -0.9 * context.ADW);
-            context.ADW += context.DADW;
+            ctxt.DADW = -rez / z_adw;
+            ctxt.DADW = min(ctxt.DADW, 10.0 * ctxt.ADW);
+            ctxt.DADW = max(ctxt.DADW, -0.9 * ctxt.ADW);
+            ctxt.ADW += ctxt.DADW;
 
-            if (rlxmin < 0.2) FILTER(context.GAM, 0.2*context.II, context.II);
+            if (rlxmin < 0.2) FILTER(ctxt.GAM, 0.2*ctxt.II, ctxt.II);
 
             if (abs(dclmax) < 0.001) return;
         }
@@ -471,7 +471,7 @@ namespace xoper {
     /**
      * Converge arbitrary performance operating point.
      *
-     * @param context
+     * @param ctxt
      * @param ispec         controls the quantity used as target quantity:
      *                          - ispec = 1 : drive the thrust to TSPEC
      *                          - ispec = 2 : drive the torque to QSPEC
@@ -482,15 +482,15 @@ namespace xoper {
      *                          - icon = true  : advance ratio(rpm) fixed
      *                          - icon = false : blade pitch fixed
      */
-    void APITER(common::context &context, unsigned short ispec, bool icon) {
+    void APITER(common::context &ctxt, unsigned short ispec, bool icon) {
         double clmax[common::IX], clmin[common::IX], dclstall[common::IX];
 
         // convergence tolerance
         const double eps = 1.0e-7;
 
-        int k1 = context.II + 1;
-        int k2 = context.II + 2;
-        int k3 = context.II + 3;
+        int k1 = ctxt.II + 1;
+        int k2 = ctxt.II + 2;
+        int k3 = ctxt.II + 3;
         cout << "2000";
 
         double utot, wa, wt, vt75, vt_adw, va75, va_adw, vd75, vd_adw, ci75, ci_adv, ci_vt, si75, si_va;
@@ -500,55 +500,56 @@ namespace xoper {
         double cl_al, cl_w, cd_alf, cd_w, cd_rey, cm_al, cm_w;
         double z_cl, z_w, z_gi, z_vt, z_va, z_adv, z_dbe;
         double t_spec, q_spec, p_spec;
-        for (int iter = 0; iter < max(context.NITERA, 1); iter++) {
+        double dcl, dclmin, dclmax, dcllim, gmx;
+        int i, i75, j, imx;
+        for (int iter = 0; iter < max(ctxt.NITERA, 1); iter++) {
             // if wake advance ratio changed, recalculate Vtan influence coefficients
-            if (context.FREE or iter == 0) {
-                if (context.FAST) {
-                    GRADMO(context.II, context.NBLDS, context.DUCT, context.RAKE,
-                           context.XI, context.XV, context.GAM, context.ADW, context.VIND_GAM, context.VIND_ADW);
+            if (ctxt.FREE or iter == 0) {
+                if (ctxt.FAST) {
+                    GRADMO(ctxt.II, ctxt.NBLDS, ctxt.DUCT, ctxt.RAKE,
+                           ctxt.XI, ctxt.XV, ctxt.GAM, ctxt.ADW, ctxt.VIND_GAM, ctxt.VIND_ADW);
 
-                    context.IWTYP = 1;
-                } else if (not context.VRTX) {
-                    HELICO(context.II, context.NBLDS, context.DUCT, context.RAKE,
-                           context.XI, context.XV, context.GAM, context.ADW, context.VIND_GAM, context.VIND_ADW);
+                    ctxt.IWTYP = 1;
+                } else if (not ctxt.VRTX) {
+                    HELICO(ctxt.II, ctxt.NBLDS, ctxt.DUCT, ctxt.RAKE,
+                           ctxt.XI, ctxt.XV, ctxt.GAM, ctxt.ADW, ctxt.VIND_GAM, ctxt.VIND_ADW);
 
-                    context.IWTYP = 2;
+                    ctxt.IWTYP = 2;
                 } else {
-                    vortex::VRTXC0(context.II, context.NBLDS, context.DUCT, context.RAKE,
-                                   context.XI, context.XV, context.GAM, context.ADW, context.VIND_GAM, context.VIND_ADW);
+                    vortex::VRTXC0(ctxt.II, ctxt.NBLDS, ctxt.DUCT, ctxt.RAKE,
+                                   ctxt.XI, ctxt.XV, ctxt.GAM, ctxt.ADW, ctxt.VIND_GAM, ctxt.VIND_ADW);
 
-                    context.IWTYP = 3;
+                    ctxt.IWTYP = 3;
                 }
             }
 
             // recalculate Vtan
-            VCALC(context);
+            VCALC(ctxt);
 
             // recalculate wake radius array and Vwak
-            SETXW(context);
+            SETXW(ctxt);
 
             // recalculate thrust, power, and sensitivities for current solution
-            TPQ(context, 1);
+            TPQ(ctxt, 1);
 
             // initialize max residuals
-            context.GRESMX = 0.;
-            context.FRESMX = 0.;
-            context.ARESMX = 0.;
+            ctxt.GRESMX = 0.;
+            ctxt.FRESMX = 0.;
+            ctxt.ARESMX = 0.;
 
-            for (int j = 0; j < k3; j++) {
-                context.Q[k2][j] = 0.;
+            for (j = 0; j < k3; j++) {
+                ctxt.Q[k2][j] = 0.;
             }
 
             // The wake advance ratio equation is only approximate, normally the
             // tangential induced velocity is ignored (inconsistent with a rigid
             // wake with constant wake advance ratio).  This calculates a factor
             // to compensate for the Vt term at one (representative) radial station
-            int i;
-            for (i = 0; i < context.II; i++) {
-                if (context.XI[i] > 0.75) break;
+            for (i = 0; i < ctxt.II; i++) {
+                if (ctxt.XI[i] > 0.75) break;
             }
-            int i75 = i;
-            CSCALC(context,
+            i75 = i;
+            CSCALC(ctxt,
                     i75, utot, wa, wt,
                     vt75, vt_adw,
                     va75, va_adw,
@@ -558,33 +559,33 @@ namespace xoper {
                      w75,  w_adv,  w_vt, w_va,
                    phi75,  p_adv,  p_vt, p_va);
             // Factor for OMEG*R-VT correction to wake advance ratio
-            // advfact = 1.0 / (1.0 - context.ADV * vt75 / context.XI[i75]);
+            // advfact = 1.0 / (1.0 - ctxt.ADV * vt75 / ctxt.XI[i75]);
             // Set to 1.0 for now... HHY
             advfact = 1.0;
 
-            if (context.FREE) {
+            if (ctxt.FREE) {
                 // Set up equation to converge wake advance ratio based on
                 // average axial velocity consistent with basic momentum theory
 
                 // Use "equivalent" prop thrust and power
-                context.DQ[k2] =  context.ADWFCTR * context.ADW * context.TWAK / context.PWAK - context.ADV * advfact;
-                z_tw           =  context.ADWFCTR * context.ADW                / context.PWAK;
-                z_pw           = -context.ADWFCTR * context.ADW * context.TWAK / pow(context.PWAK, 2);
-                for (int j = 0; j < context.II; j++) {
-                    context.Q[k2][j] = z_tw * context.TW_GAM[j] + z_pw * context.PW_GAM[j];
+                ctxt.DQ[k2] =  ctxt.ADWFCTR * ctxt.ADW * ctxt.TWAK / ctxt.PWAK - ctxt.ADV * advfact;
+                z_tw           =  ctxt.ADWFCTR * ctxt.ADW                / ctxt.PWAK;
+                z_pw           = -ctxt.ADWFCTR * ctxt.ADW * ctxt.TWAK / pow(ctxt.PWAK, 2);
+                for (j = 0; j < ctxt.II; j++) {
+                    ctxt.Q[k2][j] = z_tw * ctxt.TW_GAM[j] + z_pw * ctxt.PW_GAM[j];
                 }
-                context.Q[k2][k2]    = z_tw * context.TW_ADV + z_pw * context.PW_ADV - advfact;
-                context.Q[k2][k2]    = z_tw * context.TW_ADV + z_pw * context.PW_ADV - advfact * context.TWAK / context.PWAK;
-                context.ARESMX = max(context.ARESMX, abs(context.DQ[k2] / context.ADV));
+                ctxt.Q[k2][k2]    = z_tw * ctxt.TW_ADV + z_pw * ctxt.PW_ADV - advfact;
+                ctxt.Q[k2][k2]    = z_tw * ctxt.TW_ADV + z_pw * ctxt.PW_ADV - advfact * ctxt.TWAK / ctxt.PWAK;
+                ctxt.ARESMX = max(ctxt.ARESMX, abs(ctxt.DQ[k2] / ctxt.ADV));
             } else {
                 // specify zero change of wake advance ratios
-                context.DQ[k2] = 0.;
-                context.Q[k2][k2] = 1.0;
+                ctxt.DQ[k2] = 0.;
+                ctxt.Q[k2][k2] = 1.0;
             }
 
             // go over stations, enforcing Gamma-CL relation at real prop
-            for (i = 0; i < context.II; i++) {
-                CSCALC(context,
+            for (i = 0; i < ctxt.II; i++) {
+                CSCALC(ctxt,
                         i, utot, wa, wt,
                        vt, vt_adw,
                        va, va_adw,
@@ -594,22 +595,22 @@ namespace xoper {
                         w,  w_adv,  w_vt,  w_va,
                        phi, p_adv,  p_vt,  p_va);
 
-                alfa   = context.BETA[i] - phi;
+                alfa   = ctxt.BETA[i] - phi;
                 al_dbe =  1.0;
                 al_p   = -1.0;
 
-                rey = context.CH[i] * abs(w) * context.RHO * context.VEL * context.RAD / context.RMU;
-                xaero::GETCLCDCM(context,
+                rey = ctxt.CH[i] * abs(w) * ctxt.RHO * ctxt.VEL * ctxt.RAD / ctxt.RMU;
+                xaero::GETCLCDCM(ctxt,
                                  i, alfa, w, rey,
-                                 context.CL[i], cl_al, cl_w,
-                                 clmax[i], clmin[i], dclstall[i], context.STALL[i],
-                                 context.CD[i], cd_alf, cd_w, cd_rey,
-                                 context.CM[i], cm_al, cm_w);
+                                 ctxt.CL[i], cl_al, cl_w,
+                                 clmax[i], clmin[i], dclstall[i], ctxt.STALL[i],
+                                 ctxt.CD[i], cd_alf, cd_w, cd_rey,
+                                 ctxt.CM[i], cm_al, cm_w);
 
                 // Enforce local Gamma-CL relation
-                context.DQ[i] = context.CH[i] * context.CL[i] * w - 2.0 * context.GAM[i];   // Residual
-                z_cl          = context.CH[i]                 * w;
-                z_w           = context.CH[i] * context.CL[i];
+                ctxt.DQ[i] = ctxt.CH[i] * ctxt.CL[i] * w - 2.0 * ctxt.GAM[i];   // Residual
+                z_cl          = ctxt.CH[i]                 * w;
+                z_w           = ctxt.CH[i] * ctxt.CL[i];
 
                 z_gi  =                     - 2.0;
                 z_vt  = z_cl * (cl_al * al_p * p_vt  + cl_w * w_vt )  + z_w * w_vt;
@@ -617,31 +618,31 @@ namespace xoper {
                 z_adv = z_cl * (cl_al * al_p * p_adv + cl_w * w_adv)  + z_w * w_adv;
                 z_dbe = z_cl * (cl_al * al_dbe                     );
 
-                for (int j = 0; j < context.II; j++) {
-                    context.Q[i][j] = z_vt * context.VIND_GAM[2][i][j]
-                                    + z_va * context.VIND_GAM[0][i][j];                     // dRes/dGamj
+                for (j = 0; j < ctxt.II; j++) {
+                    ctxt.Q[i][j] = z_vt * ctxt.VIND_GAM[2][i][j]
+                                    + z_va * ctxt.VIND_GAM[0][i][j];                     // dRes/dGamj
                 }
-                context.Q[i][i]  = context.Q[i][i] + z_gi;                                  // dRes/dGami
-                context.Q[i][k1] = z_adv;                                                   // dRes/dAdv
-                context.Q[i][k2] =                   z_vt * vt_adw + z_va * va_adw;         // dRes/dAdw
-                context.Q[i][k3] = z_dbe;                                                   // dRes/dBeta
+                ctxt.Q[i][i]  = ctxt.Q[i][i] + z_gi;                                  // dRes/dGami
+                ctxt.Q[i][k1] = z_adv;                                                   // dRes/dAdv
+                ctxt.Q[i][k2] =                   z_vt * vt_adw + z_va * va_adw;         // dRes/dAdw
+                ctxt.Q[i][k3] = z_dbe;                                                   // dRes/dBeta
 
-                context.GRESMX = max(context.GRESMX, abs(context.DQ[i] / (0.1 * w)));
+                ctxt.GRESMX = max(ctxt.GRESMX, abs(ctxt.DQ[i] / (0.1 * w)));
             }
 
             // equivalent prop will be used to define inviscid thrust
             switch (ispec) {
                 case 1: // drive thrust to specified value
-                    t_spec = context.TSPEC / (context.RHO * pow(context.VEL, 2) * pow(context.RAD, 2));
-                    context.DQ[k1] = context.TWAK + context.TVIS - t_spec;
-                    for (int j = 0; j < context.II; j++) {
-                        context.Q[k1][j] = context.TW_GAM[j] + context.TV_GAM[j];
+                    t_spec = ctxt.TSPEC / (ctxt.RHO * pow(ctxt.VEL, 2) * pow(ctxt.RAD, 2));
+                    ctxt.DQ[k1] = ctxt.TWAK + ctxt.TVIS - t_spec;
+                    for (j = 0; j < ctxt.II; j++) {
+                        ctxt.Q[k1][j] = ctxt.TW_GAM[j] + ctxt.TV_GAM[j];
                     }
-                    context.Q[k1][k1] = context.TW_ADV + context.TV_ADV;
-                    context.Q[k1][k2] = context.TW_ADW + context.TV_ADW;
-                    context.Q[k1][k3] =                  context.TV_DBE;
+                    ctxt.Q[k1][k1] = ctxt.TW_ADV + ctxt.TV_ADV;
+                    ctxt.Q[k1][k2] = ctxt.TW_ADW + ctxt.TV_ADW;
+                    ctxt.Q[k1][k3] =                  ctxt.TV_DBE;
 
-                    context.FRESMX  = max(context.FRESMX, abs(context.DQ[k1]));
+                    ctxt.FRESMX  = max(ctxt.FRESMX, abs(ctxt.DQ[k1]));
                 case 2: // drive torque (= PTOT*ADV) to specified value
                     // TODO: implement
                     break;
@@ -658,12 +659,12 @@ namespace xoper {
             }
 
             // Constraint conditions
-            context.DQ[k3] = 0.;
-            for (int j = 0; j < k3; j++) {
-                context.Q[k3][j] = 0.;
+            ctxt.DQ[k3] = 0.;
+            for (j = 0; j < k3; j++) {
+                ctxt.Q[k3][j] = 0.;
             }
-            if (icon) context.Q[k3][k1] = 1.0;      // advance ratio(rpm) fixed
-            else      context.Q[k3][k3] = 1.0;      // blade pitch fixed
+            if (icon) ctxt.Q[k3][k1] = 1.0;      // advance ratio(rpm) fixed
+            else      ctxt.Q[k3][k3] = 1.0;      // blade pitch fixed
 
             // solve linearized Newton system
             xutils::GAUSS(k3, context.Q, &context.DQ, 1);
@@ -672,18 +673,18 @@ namespace xoper {
 
     /**
      * Calculate cartesian induced velocities.
-     * @param context
+     * @param ctxt
      */
-    void VCALC(common::context &context) {
+    void VCALC(common::context &ctxt) {
         double vsum[3] = {0, 0, 0};
-        for (int i = 0; i < context.II; i++) {
-            for (int j = 0; j < context.II; j++) {
+        for (int i = 0; i < ctxt.II; i++) {
+            for (int j = 0; j < ctxt.II; j++) {
                 for (int k = 0; k < 3; k++) {
-                    vsum[k] += context.VIND_GAM[k][i][j] * context.GAM[i];
+                    vsum[k] += ctxt.VIND_GAM[k][i][j] * ctxt.GAM[i];
                 }
             }
             for (int k = 0; k < 3; k++) {
-                context.VIND[k][i] = vsum[k];
+                ctxt.VIND[k][i] = vsum[k];
                 vsum[k] = 0;
             }
         }

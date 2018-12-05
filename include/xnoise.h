@@ -11,7 +11,7 @@ using namespace std;
 #include <common.h>
 
 namespace xnoise {
-    void noise(common::context& context) {
+    void noise(common::context &ctxt) {
         cout << "NOT IMPLEMENTED" << endl;
     }
 }

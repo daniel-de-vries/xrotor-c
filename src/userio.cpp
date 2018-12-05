@@ -216,7 +216,7 @@ namespace userio {
                 } else {
                     a.push_back(val);
                 }
-            } catch (const invalid_argument& e) {
+            } catch (const invalid_argument &e) {
                 error = true;
                 return;
             }

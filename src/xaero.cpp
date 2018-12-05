@@ -14,17 +14,15 @@ namespace xaero {
     /**
      * Set up indices referring to aero section for each radial section.
      *
-     * @param context
+     * @param ctxt
      */
-    void SETIAERO(common::context &context) {
-        context.IAERO.resize(context.II);
-
+    void SETIAERO(common::context &ctxt) {
         int i, n;
-        for (i = 0; i < context.II; i++) {
-            context.IAERO[i] = 0;
-            for (n = 0; n < context.NAERO; n++) {
-                if (context.XIAERO[n] <= context.XI[i])
-                    context.IAERO[i] = n;
+        for (i = 0; i < ctxt.II; i++) {
+            ctxt.IAERO[i] = 0;
+            for (n = 0; n < ctxt.NAERO; n++) {
+                if (ctxt.XIAERO[n] <= ctxt.XI[i])
+                    ctxt.IAERO[i] = n;
             }
         }
     }
@@ -32,7 +30,7 @@ namespace xaero {
     /**
      * Put aero data into stored section array at index n.
      *
-     * @param context
+     * @param ctxt
      * @param n             section index
      * @param xisect        r/R of the section
      * @param a0            angle of zero lift
@@ -49,36 +47,36 @@ namespace xaero {
      * @param reref         reference Reynold's number
      * @param rexp          Reynold's number exponent (Cd ~ Re^rexp)
      */
-    void PUTAERO(common::context &context,
+    void PUTAERO(common::context &ctxt,
                  int n, double xisect, double a0, double clmax, double clmin,
                  double dclda, double dclda_stall, double dcl_stall,
                  double cdmin, double clcdmin, double dcddcl2,
                  double cmcon, double mcrit, double reref, double rexp) {
-        if (n > context.AERODATA.size())
-            context.AERODATA.resize(n);
-        if (n > context.XIAERO.size())
-            context.XIAERO.resize(n);
+        if (n > ctxt.AERODATA.size())
+            ctxt.AERODATA.resize(n);
+        if (n > ctxt.XIAERO.size())
+            ctxt.XIAERO.resize(n);
 
-        context.AERODATA[n][0 ] = a0;
-        context.AERODATA[n][1 ] = clmax;
-        context.AERODATA[n][2 ] = clmin;
-        context.AERODATA[n][3 ] = dclda;
-        context.AERODATA[n][4 ] = dclda_stall;
-        context.AERODATA[n][5 ] = dcl_stall;
-        context.AERODATA[n][6 ] = cdmin;
-        context.AERODATA[n][7 ] = clcdmin;
-        context.AERODATA[n][8 ] = dcddcl2;
-        context.AERODATA[n][9 ] = cmcon;
-        context.AERODATA[n][10] = reref;
-        context.AERODATA[n][11] = rexp;
-        context.AERODATA[n][12] = mcrit;
-        context.XIAERO[n]       = xisect;
+        ctxt.AERODATA[n][0 ] = a0;
+        ctxt.AERODATA[n][1 ] = clmax;
+        ctxt.AERODATA[n][2 ] = clmin;
+        ctxt.AERODATA[n][3 ] = dclda;
+        ctxt.AERODATA[n][4 ] = dclda_stall;
+        ctxt.AERODATA[n][5 ] = dcl_stall;
+        ctxt.AERODATA[n][6 ] = cdmin;
+        ctxt.AERODATA[n][7 ] = clcdmin;
+        ctxt.AERODATA[n][8 ] = dcddcl2;
+        ctxt.AERODATA[n][9 ] = cmcon;
+        ctxt.AERODATA[n][10] = reref;
+        ctxt.AERODATA[n][11] = rexp;
+        ctxt.AERODATA[n][12] = mcrit;
+        ctxt.XIAERO[n]       = xisect;
     }
 
     /**
      * Interpolate C_l(alpha), C_d(alpha), and C_m(alpha) at blade station with index is.
      *
-     * @param context
+     * @param ctxt
      * @param is                        blade station index
      * @param alf                       angle of attack, alpha
      * @param w                         ?
@@ -96,54 +94,54 @@ namespace xaero {
      * @param cm_al                     d(C_m)/d(alpha)
      * @param cm_w                      d(C_m)/d(w)
      */
-    void GETCLCDCM(common::context &context,
+    void GETCLCDCM(common::context &ctxt,
                    int is, double alf, double w, double rey,
                    double &clift, double &cl_alf, double &cl_w,
                    double &clmax, double &clmin, double &dcl_stall, bool &stallf,
                    double &cdrag, double &cd_alf, double &cd_w, double &cd_rey,
                    double &cmom, double &cm_al, double &cm_w) {
         // Check for installed aero data section index
-        int n = context.IAERO[is];
-        if (n < 0 || n >= context.NAERO) {
+        int n = ctxt.IAERO[is];
+        if (n < 0 || n >= ctxt.NAERO) {
             bool error = false;
 
-            if (context.NAERO > 0) {
+            if (ctxt.NAERO > 0) {
                 // Find lower index of aero data sections XIAERO(N) bounding XI(IS)
-                for (n = 0; n < context.NAERO; n++) {
-                    if (context.XIAERO[n] <= context.XI[is]) {
-                        context.IAERO[is] = n;
+                for (n = 0; n < ctxt.NAERO; n++) {
+                    if (ctxt.XIAERO[n] <= ctxt.XI[is]) {
+                        ctxt.IAERO[is] = n;
                     } else {
                         error = true;
                         break;
                     }
                 }
 
-                cout << "Aero section not found for station " << context.XI[is] << endl;
+                cout << "Aero section not found for station " << ctxt.XI[is] << endl;
             }
 
             if (error) {
                 n = 0;
-                context.IAERO[is] = n;
+                ctxt.IAERO[is] = n;
             }
         }
 
         // Get section aero data from stored section array
-        double a0           = context.AERODATA[n][0 ];
-        clmax               = context.AERODATA[n][1 ];
-        clmin               = context.AERODATA[n][2 ];
-        double dclda        = context.AERODATA[n][3 ];
-        double dclda_stall  = context.AERODATA[n][4 ];
-        dcl_stall           = context.AERODATA[n][5 ];
-        double cdmin        = context.AERODATA[n][6 ];
-        double clcdmin      = context.AERODATA[n][7 ];
-        double dcddcl2      = context.AERODATA[n][8 ];
-        double cmcon        = context.AERODATA[n][9 ];
-        double reref        = context.AERODATA[n][10];
-        double rexp         = context.AERODATA[n][11];
-        double mcrit        = context.AERODATA[n][12];
-        double xisect1      = context.XIAERO[n];
+        double a0           = ctxt.AERODATA[n][0 ];
+        clmax               = ctxt.AERODATA[n][1 ];
+        clmin               = ctxt.AERODATA[n][2 ];
+        double dclda        = ctxt.AERODATA[n][3 ];
+        double dclda_stall  = ctxt.AERODATA[n][4 ];
+        dcl_stall           = ctxt.AERODATA[n][5 ];
+        double cdmin        = ctxt.AERODATA[n][6 ];
+        double clcdmin      = ctxt.AERODATA[n][7 ];
+        double dcddcl2      = ctxt.AERODATA[n][8 ];
+        double cmcon        = ctxt.AERODATA[n][9 ];
+        double reref        = ctxt.AERODATA[n][10];
+        double rexp         = ctxt.AERODATA[n][11];
+        double mcrit        = ctxt.AERODATA[n][12];
+        double xisect1      = ctxt.XIAERO[n];
         // Get data for inner bounding aero section
-        CLCDCM(context,
+        CLCDCM(ctxt,
                alf, w, rey,
                clift, cl_alf, cl_w, stallf,
                cdrag, cd_alf, cd_w, cd_rey,
@@ -153,30 +151,30 @@ namespace xaero {
 
         // Check for another bounding section, if not we are done,
         // if we have another section linearly interpolate data to station IS
-        if (n < context.NAERO-1) {
-            double xisect2 = context.XIAERO[n+1];
-            double frac = (context.XI[is] - xisect1) / (xisect2 - xisect1);
+        if (n < ctxt.NAERO-1) {
+            double xisect2 = ctxt.XIAERO[n+1];
+            double frac = (ctxt.XI[is] - xisect1) / (xisect2 - xisect1);
 
-            a0          = context.AERODATA[n+1][0 ];
-            double clmax2       = context.AERODATA[n+1][1 ];
-            double clmin2       = context.AERODATA[n+1][2 ];
-            dclda               = context.AERODATA[n+1][3 ];
-            dclda_stall         = context.AERODATA[n+1][4 ];
-            double dcl_stall2   = context.AERODATA[n+1][5 ];
-            cdmin               = context.AERODATA[n+1][6 ];
-            clcdmin             = context.AERODATA[n+1][7 ];
-            dcddcl2             = context.AERODATA[n+1][8 ];
-            cmcon               = context.AERODATA[n+1][9 ];
-            reref               = context.AERODATA[n+1][10];
-            rexp                = context.AERODATA[n+1][11];
-            mcrit               = context.AERODATA[n+1][12];
+            a0          = ctxt.AERODATA[n+1][0 ];
+            double clmax2       = ctxt.AERODATA[n+1][1 ];
+            double clmin2       = ctxt.AERODATA[n+1][2 ];
+            dclda               = ctxt.AERODATA[n+1][3 ];
+            dclda_stall         = ctxt.AERODATA[n+1][4 ];
+            double dcl_stall2   = ctxt.AERODATA[n+1][5 ];
+            cdmin               = ctxt.AERODATA[n+1][6 ];
+            clcdmin             = ctxt.AERODATA[n+1][7 ];
+            dcddcl2             = ctxt.AERODATA[n+1][8 ];
+            cmcon               = ctxt.AERODATA[n+1][9 ];
+            reref               = ctxt.AERODATA[n+1][10];
+            rexp                = ctxt.AERODATA[n+1][11];
+            mcrit               = ctxt.AERODATA[n+1][12];
 
             // Get data for outer bounding aero section
             double clift2, cl_alf2, cl_w2,
                     cdrag2, cd_alf2, cd_w2, cd_rey2,
                     cmom2, cm_al2, cm_w2;
             bool stallf2;
-            CLCDCM(context,
+            CLCDCM(ctxt,
                    alf, w, rey,
                    clift2, cl_alf2, cl_w2, stallf2,
                    cdrag2, cd_alf2, cd_w2, cd_rey2,
@@ -207,7 +205,7 @@ namespace xaero {
     /**
      * Get the angle of attack for a given lift coefficient at blade station with index is.
      *
-     * @param context
+     * @param ctxt
      * @param is        blade station index
      * @param clift     lift coefficient
      * @param w         ?
@@ -216,7 +214,7 @@ namespace xaero {
      * @param alf_w     d(alpha)/d(w)
      * @param stallf    true if stalled
      */
-    void GETALF(common::context &context,
+    void GETALF(common::context &ctxt,
                 int is, const double &clift, const double &w,
                 double &alf, double &alf_cl, double &alf_w, bool &stallf) {
         const int niter = 10;
@@ -225,13 +223,13 @@ namespace xaero {
         stallf = false;
 
         // HHY had to set A0 to first aero section as A0 is now section property
-        double a0 = context.AERODATA[0][0];
+        double a0 = ctxt.AERODATA[0][0];
         double rey = 0;
 
         alf = a0;
         double cltemp, cl_alf, cl_w, clmax, clmin, dcl_stall, cdrag, cd_alf, cd_w, cd_rey, cmom, cm_al, cm_w, dalf;
         for (int iter = 0; iter < niter; iter++) {
-            GETCLCDCM(context,
+            GETCLCDCM(ctxt,
                       is, alf, w, rey,
                       cltemp, cl_alf, cl_w,
                       clmax, clmin, dcl_stall, stallf,
@@ -269,7 +267,7 @@ namespace xaero {
      * #CM(alpha) function - presently CM is assumed constant,
      * varying only with Mach by Prandtl-Glauert scaling
      */
-    void CLCDCM(common::context &context,
+    void CLCDCM(common::context &ctxt,
                 const double &alf, const double &w, const double &rey,
                 double &clift, double &cl_alf, double &cl_w, bool &stallf,
                 double &cdrag, double &cd_alf, double &cd_w, double &cd_rey,
@@ -291,8 +289,8 @@ namespace xaero {
         const double cdmstall  =  0.1000;
 
         // Prandtl-Glauert compressibility factor
-        double msq   =   w * w * pow(context.VEL, 2) / pow(context.VSO, 2);
-        double msq_w = 2.0 * w * pow(context.VEL, 2) / pow(context.VSO, 2);
+        double msq   =   w * w * pow(ctxt.VEL, 2) / pow(ctxt.VSO, 2);
+        double msq_w = 2.0 * w * pow(ctxt.VEL, 2) / pow(ctxt.VSO, 2);
         if (msq >= 1.0) {
             cout << "CLFUNC: Local Mach number limited to 0.99, was " << msq << endl;
             msq = 0.99;

@@ -50,7 +50,7 @@ namespace xoper {
     void APITER(common::context &ctxt, unsigned short ispec, bool icon);
 
     void CSCALC(common::context &ctxt,
-                const int &i, double &utot, const double &wa, const double &wt,
+                const int &i, double &utot, double &wa, double &wt,
                 double & vt, double &vt_adw,
                 double & va, double &va_adw,
                 double & vd, double &vd_adw,

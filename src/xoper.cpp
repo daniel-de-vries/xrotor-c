@@ -772,6 +772,61 @@ namespace xoper {
     }
 
     /**
+     * Calculate velocity components at radial station I on real prop.
+     */
+    void CSCALC(common::context &ctxt,
+                const int &i, double &utot, double &wa, double &wt,
+                double & vt, double &vt_adw,
+                double & va, double &va_adw,
+                double & vd, double &vd_adw,
+                double & ci, double &ci_adv, double &ci_vt,
+                double & si,                                double &si_va,
+                double &  w, double & w_adv, double & w_vt, double & w_va,
+                double &phi, double & p_adv, double & p_vt, double & p_va) {
+        double uduct, vaduct_va, vd_va, wsq;
+
+        vt = ctxt.VIND[2][i];
+        vt_adw = ctxt.VIND_ADW[2][i];
+
+        va = ctxt.VIND[0][i];
+        va_adw = ctxt.VIND_ADW[0][i];
+
+        // Include duct effect on freestream and induced axial velocity
+        uduct     = 0.0;
+        vaduct_va = 1.0;
+        if (ctxt.DUCT) {
+            uduct     = ctxt.URDUCT - 1.0;
+            vaduct_va = 2.0 * ctxt.URDUCT;
+        }
+        // duct induced axial velocity
+        vd     = va * (vaduct_va - 1.0);
+        vd_va  =      (vaduct_va - 1.0);
+        vd_adw = vd_va * va_adw;
+
+        // Freestream, body induced and added inflow velocities
+        utot = 1.0 + uduct + ctxt.UBODY[i];
+        xrotor::UVADD(ctxt, ctxt.XI[i], wa, wt);
+
+        ci     =  ctxt.XI[i] /     ctxt.ADV     - wt - vt;
+        ci_adv = -ctxt.XI[i] / pow(ctxt.ADV, 2);
+        ci_vt  =                                     - 1.0;
+
+        si     = utot + wa + va + vd;
+        si_va  =            1.0 + vd_va;
+
+        wsq = ci*ci + si*si;
+        w = sqrt(wsq);
+        w_adv = (ci * ci_adv              ) / w;
+        w_vt  = (ci * ci_vt               ) / w;
+        w_va  = (              si * si_va ) / w;
+
+        phi = atan2(si, ci);
+        p_adv = (            - si * ci_adv) / wsq;
+        p_vt  = (            - si * ci_vt ) / wsq;
+        p_va  = (ci * si_va               ) / wsq;
+    }
+
+    /**
      * Calculate cartesian induced velocities.
      * @param ctxt
      */

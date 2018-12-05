@@ -491,7 +491,7 @@ namespace xoper {
         int k1 = ctxt.II + 1;
         int k2 = ctxt.II + 2;
         int k3 = ctxt.II + 3;
-        cout << "2000";
+        cout <<  " Iter     dGmax  @Imax    gGrms       Av        Aw         Be       RLX" << endl;
 
         double utot, wa, wt, vt75, vt_adw, va75, va_adw, vd75, vd_adw, ci75, ci_adv, ci_vt, si75, si_va;
         double w75, w_adv, w_vt, w_va, phi75, p_adv, p_vt, p_va, advfact, z_tw, z_pw;
@@ -667,7 +667,107 @@ namespace xoper {
             else      ctxt.Q[k3][k3] = 1.0;      // blade pitch fixed
 
             // solve linearized Newton system
-            xutils::GAUSS(k3, context.Q, &context.DQ, 1);
+            xutils::GAUSS(k3, ctxt.Q, &ctxt.DQ, 1);
+
+            ctxt.RLX = 1.0;
+            // Set initial iterations to underrelax
+            if (iter <= 1) ctxt.RLX = 0.2;
+            // Apply limiters to the Newton updates based on physical properties
+            for (i = 0; i < ctxt.II; i++) {
+                ctxt.DGAM[i] = -ctxt.DQ[i];
+
+                // limit CL changes near +- stall
+                dcl = 2.0 * ctxt.DGAM[i] / (ctxt.CH[i] * w);
+                dclmin = max(1.5 * dclstall[i], abs(ctxt.CL[i] - clmin[i]));
+                dclmax = max(1.5 * dclstall[i], abs(clmax[i] - ctxt.CL[i]));
+
+                dcllim = min(min(0.5, dclmin), dclmax);
+                dcllim = max(dcllim, 0.01);
+                if (ctxt.RLX * abs(dcl) > dcllim) ctxt.RLX = min(ctxt.RLX, dcllim / abs(dcl));
+
+                // limit GAM changes that change sign
+                if (ctxt.DGAM[i] * ctxt.DGAMOLD[i] < 0.0) ctxt.RLX = min(ctxt.RLX, 0.2);
+            }
+
+            ctxt.DADV = -ctxt.DQ[k1];
+            ctxt.DADW = -ctxt.DQ[k2];
+            ctxt.DBET = -ctxt.DQ[k3];
+
+            if (ctxt.NITERA == 0) ctxt.RLX = 0.0;
+
+            // limit blade angle change to 0.05 radians  (~3 degrees)
+            if (ctxt.RLX * ctxt.DBET > 0.05) ctxt.RLX = min(ctxt.RLX, 0.05 / ctxt.DBET);
+            if (ctxt.RLX * ctxt.DBET < -.05) ctxt.RLX = min(ctxt.RLX, -.05 / ctxt.DBET);
+
+            // limit advance ratio changes
+            if (ctxt.RLX * ctxt.DADV > 0.5 * ctxt.ADV) ctxt.RLX = min(ctxt.RLX, 0.5 * ctxt.ADV / ctxt.DADV);
+            if (ctxt.RLX * ctxt.DADV < -.3 * ctxt.ADV) ctxt.RLX = min(ctxt.RLX, -.3 * ctxt.ADV / ctxt.DADV);
+            if (ctxt.RLX * ctxt.DADW > 0.5 * ctxt.ADW) ctxt.RLX = min(ctxt.RLX, 0.5 * ctxt.ADW / ctxt.DADW);
+            if (ctxt.RLX * ctxt.DADW < -.3 * ctxt.ADW) ctxt.RLX = min(ctxt.RLX, -.3 * ctxt.ADW / ctxt.DADW);
+            
+            // update circulation, blade angle arrays
+            ctxt.RMS = 0.0;
+            gmx = 0.0;
+            imx = 0;
+
+            for (i = 0; i < ctxt.II; i++) {
+                ctxt.GAM[i]   += ctxt.RLX * ctxt.DGAM[i];
+                ctxt.BETA[i]  += ctxt.RLX * ctxt.DBET;
+                ctxt.BETA0[i] += ctxt.RLX * ctxt.DBET;
+
+                ctxt.RMS += pow(ctxt.DGAM[i], 2) / (1.0 + 1.0 / pow(ctxt.ADV, 2));
+                if (abs(ctxt.DGAM[i]) >= abs(gmx)) {
+                    gmx = ctxt.DGAM[i];
+                    imx = i;
+                }
+
+                ctxt.DGAMOLD[i] = ctxt.DGAM[i];
+            }
+
+            // update incremental blade angle
+            ctxt.DBETA += ctxt.RLX * ctxt.DBET;
+
+            // update advance ratios
+            ctxt.ADV += ctxt.RLX * ctxt.DADV;
+            ctxt.ADW += ctxt.RLX * ctxt.DADW;
+
+            ctxt.RMS = sqrt(ctxt.RMS / (float) ctxt.II);
+
+            // display iteration history
+            printf(" %3i   %10.3E  %3i  %10.3E  %8.4f  %8.4f  %8.3f  %8.4f\n", iter, gmx, imx, ctxt.RMS,
+                   ctxt.ADV, ctxt.ADW, ctxt.BETA[ctxt.II] * 180. / common::PI, ctxt.RLX);
+
+            // Smooth filter the GAM for low relaxation factors
+            if (ctxt.RLX < 0.2) {
+                cout << "APITER filtering GAM" << endl;
+                FILTER(ctxt.GAM, 0.2 * ctxt.II, ctxt.II);
+            }
+
+            // test for convergence
+            if (ctxt.RMS <= eps) {
+                // final update of various quantities corresponding to converged solution
+                if (ctxt.FREE) {
+                    if (ctxt.FAST) {
+                        GRADMO(ctxt.II, ctxt.NBLDS, ctxt.DUCT, ctxt.RAKE,
+                               ctxt.XI, ctxt.XV, ctxt.GAM, ctxt.ADW, ctxt.VIND_GAM, ctxt.VIND_ADW);
+                        ctxt.IWTYP = 1;
+                    } else if (not ctxt.VRTX) {
+                        HELICO(ctxt.II, ctxt.NBLDS, ctxt.DUCT, ctxt.RAKE,
+                               ctxt.XI, ctxt.XV, ctxt.GAM, ctxt.ADW, ctxt.VIND_GAM, ctxt.VIND_ADW);
+                        ctxt.IWTYP = 2;
+                    } else {
+                        vortex::VRTXC0(ctxt.II, ctxt.NBLDS, ctxt.DUCT, ctxt.RAKE,
+                                       ctxt.XI, ctxt.XV, ctxt.GAM, ctxt.ADW, ctxt.VIND_GAM, ctxt.VIND_ADW);
+                        ctxt.IWTYP = 3;
+                    }
+                }
+
+                VCALC(ctxt);
+                TPQ(ctxt, 1);
+
+                ctxt.CONV = true;
+                return;
+            }
         }
     }
 

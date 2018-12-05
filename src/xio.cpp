@@ -10,7 +10,7 @@
 #include <userio.h>
 #include <xaero.h>
 #include <xio.h>
-#include <xrotor.h>
+#include <xoper.h>
 #include <xrotor.h>
 
 namespace xio {
@@ -109,20 +109,24 @@ namespace xio {
         }
 
         // spline blade geometry to "old" radial locations
-        vec w1(ctxt.XI), w2(ctxt.CH), w3(iix), w4(ctxt.BETA), w5(iix), w6(ctxt.UBODY), w7(iix);
-        spline::SPLINE(w2, w3, w1);
-        spline::SPLINE(w4, w5, w1);
-        spline::SPLINE(w6, w7, w1);
+        copy(ctxt.XI   , ctxt.XI    + common::IX, ctxt.W1);
+        copy(ctxt.CH   , ctxt.CH    + common::IX, ctxt.W2);
+        copy(ctxt.BETA , ctxt.BETA  + common::IX, ctxt.W4);
+        copy(ctxt.UBODY, ctxt.UBODY + common::IX, ctxt.W6);
+
+        spline::SPLINE(ctxt.W2, ctxt.W3, ctxt.W1, iix);
+        spline::SPLINE(ctxt.W4, ctxt.W5, ctxt.W1, iix);
+        spline::SPLINE(ctxt.W6, ctxt.W7, ctxt.W1, iix);
 
         // set radial stations for built-in distribution scheme
         xrotor::SETX(ctxt);
-        xoper::XWINIT();
+        xoper::XWINIT(ctxt);
 
         // interpolate read-in geometry to generated radial stations
         for (unsigned i = 0; i < ctxt.II; i++) {
-            ctxt.CH[i]       = spline::SEVAL(ctxt.XI[i], w2, w3, w1);
-            ctxt.BETA[i]     = spline::SEVAL(ctxt.XI[i], w4, w5, w1);
-            ctxt.UBODY[i]    = spline::SEVAL(ctxt.XI[i], w6, w7, w1);
+            ctxt.CH[i]       = spline::SEVAL(ctxt.XI[i], ctxt.W2, ctxt.W3, ctxt.W1, iix);
+            ctxt.BETA[i]     = spline::SEVAL(ctxt.XI[i], ctxt.W4, ctxt.W5, ctxt.W1, iix);
+            ctxt.UBODY[i]    = spline::SEVAL(ctxt.XI[i], ctxt.W6, ctxt.W7, ctxt.W1, iix);
             ctxt.BETA0[i]    = ctxt.BETA[i];
         }
         ctxt.IINF = ctxt.II + ctxt.II / 2;

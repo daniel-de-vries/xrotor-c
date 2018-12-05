@@ -265,7 +265,7 @@ namespace xoper {
      * @param ispec, icon   @see[xoper::apiter()]
      * @param linit         flag for initialization of rotor conditions
      */
-    void APER(common::context &ctxt, unsigned short ispec, unsigned short icon, bool linit) {
+    void APER(common::context &ctxt, unsigned short ispec, bool icon, bool linit) {
         // Initialize circulations if requested
         if (linit) APINIT(ctxt);
 

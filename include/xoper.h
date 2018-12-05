@@ -45,7 +45,7 @@ namespace xoper {
         void REIN(common::context &ctxt);
     }
 
-    void APER  (common::context &ctxt, unsigned short ispec, unsigned short icon, bool linit);
+    void APER  (common::context &ctxt, unsigned short ispec, bool icon, bool linit);
     void APINIT(common::context &ctxt);
     void APITER(common::context &ctxt, unsigned short ispec, bool icon);
 
